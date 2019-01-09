@@ -1,0 +1,189 @@
+syntax = "proto3";
+
+package im.dlg.sdk.calls;
+option java_package = "im.dlg.sdk.calls";
+option java_outer_classname = "Calls";
+
+service CallService {
+    rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
+    rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
+    rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
+    rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
+    rpc disposeCall (DisposeCallRequest) returns (Empty) {};
+    rpc ack (AckRequest) returns (Empty) {};
+}
+message Empty {}
+
+enum DISPOSE_REASON {
+    DISPOSE_REASON_UNKNOWN = 0;
+    SERVER_ERROR = 1;
+    NORMAL = 2;
+    CALLEE_NOT_FOUND = 3;
+    CALLER_DISABLED = 4;
+    CALLEE_DISABLED = 5;
+    NO_ANSWER = 6;
+    BUSY = 7;
+    PICKED_UP = 8;
+}
+
+enum CALL_DIRECTION {
+    CALL_DIRECTION_UNKNOWN = 0;
+    INBOUND = 1;
+    OUTBOUND = 2;
+}
+
+enum CALL_STATE {
+    CALL_STATE_UNKNOWN = 0;
+    CALLING = 1;
+    TALKING = 2;
+    FINISHED = 3;
+}
+
+enum ICE_SETTINGS {
+    ICE_SETTINGS_UNKNOWN = 0;
+    RELAY = 1;
+    ALL = 2;
+    NONE = 3;
+}
+
+message IceServerModel {
+    string username = 1;
+    string password = 2;
+    repeated string urls = 3;
+}
+
+message IceSettingsModel {
+    ICE_SETTINGS settings = 1;
+    repeated IceServerModel iceServers = 2;
+}
+
+message AbonentModel {
+
+    message UserAbonentModel {
+        int64 userId = 1;
+        int64 accessHash = 2;
+    }
+    
+    string name = 1;
+    string nick = 2;
+    
+    oneof contact {
+        UserAbonentModel user = 3;
+        string phone = 4;
+    }
+    
+}
+
+message SdpModel {
+    string type = 1;
+    string sdp = 2;
+}
+
+message JoinCallModel {
+
+    message IceCandidateIdModel {
+    
+        message IceCandidateModel {
+            string candidate = 1;
+            string sdpMid = 2;
+            int32 sdpMLineIndex = 3;
+        }
+        
+        string id = 1;
+        IceCandidateModel iceCandidate = 2;
+    }
+    
+    string stateId = 1;
+    string instanceId = 2;
+    string callId = 3;
+    string sdpId = 4;
+    SdpModel sdp = 5;
+    repeated IceCandidateIdModel ice = 6;
+}
+
+message DisposeCallModel {
+    string stateId = 1;
+    string instanceId = 2;
+    string callId = 3;
+}
+
+message AckRequest {
+    string stateId = 1;
+    string callId = 2;
+}
+
+message CreateCallRequest {
+    AbonentModel abonent = 1;
+}
+
+message CreateCallResponse {
+    
+    message CreatedModel {
+        string callId = 1;
+        AbonentModel abonent = 2;
+        IceSettingsModel iceSettings = 3;
+    }
+    
+    oneof result {
+        CreatedModel created = 1;
+        DISPOSE_REASON disposeReason = 2;
+    }
+}
+
+
+message AnswerCallRequest {
+    string callId = 1;
+}
+
+message AnswerCallResponse {
+    
+    oneof result {
+        DISPOSE_REASON disposeReason = 1;
+        Empty callNotExists = 2;
+        IceSettingsModel iceSettings = 3;
+    }
+}
+
+message JoinCallRequest {
+    JoinCallModel join = 1;
+}
+
+message JoinCallResponse {
+    oneof result {
+        Empty callNotExists = 1;
+        DISPOSE_REASON disposeReason = 2;
+    }
+}
+
+message DisposeCallRequest {
+    DisposeCallModel dispose = 1;
+}
+
+message ServerStreamMessage {
+    
+    message ServerCallsModel {
+
+        message ServerCallModel {
+            string callId = 1;
+            CALL_STATE state = 2;
+            CALL_DIRECTION direction = 3;
+            bool currentDevice = 4;
+            AbonentModel abonent = 5;
+            int64 answerUTCDate = 6;
+        }
+        
+        repeated ServerCallModel serverCalls = 1;
+    }
+    
+    message ServerDisposeCallModel {
+        DISPOSE_REASON disposeReason = 1;
+        DisposeCallModel dispose = 2;
+        
+    }
+    
+    oneof event {
+        ServerCallsModel serverCalls = 1;
+        JoinCallModel join = 2;
+        ServerDisposeCallModel dispose = 3;
+    }
+}
