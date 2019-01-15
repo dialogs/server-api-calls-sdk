@@ -11,6 +11,7 @@ repositories {
     mavenCentral()
 }
 
+
 buildscript {
     repositories {
         google()
@@ -44,4 +45,9 @@ protobuf {
             grpc {}
         }
     }
+}
+
+task sourceJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allJava
 }

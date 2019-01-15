@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package im.dlg.sdk.calls;
+option java_package = "im.dlg.sdk.calls.server.api";
 
 service CallService {
     rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
