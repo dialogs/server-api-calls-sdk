@@ -1,0 +1,47 @@
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+
+version = '1.0.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.7'
+    }
+}
+
+dependencies {
+    protobuf files('./server.proto')
+    compile 'io.grpc:grpc-okhttp:1.17.1'
+    compile 'io.grpc:grpc-protobuf:1.17.1'
+    compile 'io.grpc:grpc-stub:1.17.1'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.6.1"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.17.1'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
