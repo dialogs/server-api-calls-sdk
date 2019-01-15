@@ -26,9 +26,9 @@ buildscript {
 
 dependencies {
     protobuf files('./server.proto')
-    compile 'io.grpc:grpc-okhttp:1.17.1'
-    compile 'io.grpc:grpc-protobuf:1.17.1'
-    compile 'io.grpc:grpc-stub:1.17.1'
+    compileOnly 'io.grpc:grpc-okhttp:1.17.1'
+    compileOnly 'io.grpc:grpc-protobuf:1.17.1'
+    compileOnly 'io.grpc:grpc-stub:1.17.1'
 }
 
 protobuf {
