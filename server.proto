@@ -6,10 +6,14 @@ service CallService {
     rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
+    rpc ringingCall (RingingCallRequest) returns (Empty) {};
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
     rpc disposeCall (DisposeCallRequest) returns (Empty) {};
     rpc ack (AckRequest) returns (Empty) {};
+    rpc joinGroupCall (JoinGroupCallRequest) returns (JoinGroupCallResponse) {}
+    rpc hangupGroupCall (HangupGroupCallRequest) returns (Empty) {}
 }
+
 message Empty {}
 
 enum DISPOSE_REASON {
@@ -22,6 +26,7 @@ enum DISPOSE_REASON {
     NO_ANSWER = 6;
     BUSY = 7;
     PICKED_UP = 8;
+    CALL_DOES_NOT_EXISTS = 9;
 }
 
 enum CALL_DIRECTION {
@@ -32,9 +37,11 @@ enum CALL_DIRECTION {
 
 enum CALL_STATE {
     CALL_STATE_UNKNOWN = 0;
-    CALLING = 1;
-    TALKING = 2;
-    FINISHED = 3;
+    TRIYNG = 1;
+    PROGRESS = 2;
+    RINGING = 3;
+    TALKING = 4;
+    FINISHED = 5;
 }
 
 enum ICE_SETTINGS {
@@ -42,6 +49,12 @@ enum ICE_SETTINGS {
     RELAY = 1;
     ALL = 2;
     NONE = 3;
+}
+
+enum PEER_TYPE {
+    PEER_TYPE_UNKNOWN = 0;
+    USER = 1;
+    GROUP = 2;
 }
 
 message IceServerModel {
@@ -55,21 +68,24 @@ message IceSettingsModel {
     repeated IceServerModel iceServers = 2;
 }
 
-message AbonentModel {
 
-    message UserAbonentModel {
-        int64 userId = 1;
-        int64 accessHash = 2;
+message PeerIdModel {
+    int64 peerId = 1;
+    int64 accessHash = 2;
+}
+
+message AbonentModel {
+    
+    message KnownAbonentModel {
+        
+        string name = 1;
+        string nick = 2;
+        string phone = 3;
+        PeerIdModel user = 4;
     }
     
-    string name = 1;
-    string nick = 2;
-    
-    oneof contact {
-        UserAbonentModel user = 3;
-        string phone = 4;
-    }
-    
+    int64 abonentId = 1;
+    KnownAbonentModel abonent = 2;
 }
 
 message SdpModel {
@@ -92,8 +108,8 @@ message JoinCallModel {
     }
     
     string stateId = 1;
-    string instanceId = 2;
-    string callId = 3;
+    int64 instanceId = 2;
+    int64 callId = 3;
     string sdpId = 4;
     SdpModel sdp = 5;
     repeated IceCandidateIdModel ice = 6;
@@ -101,44 +117,50 @@ message JoinCallModel {
 
 message DisposeCallModel {
     string stateId = 1;
-    string instanceId = 2;
-    string callId = 3;
+    int64 instanceId = 2;
+    int64 callId = 3;
 }
 
 message AckRequest {
     string stateId = 1;
-    string callId = 2;
+    int64 callId = 2;
 }
 
 message CreateCallRequest {
-    AbonentModel abonent = 1;
+    AbonentModel abonent = 2;
 }
 
 message CreateCallResponse {
     
-    message CreatedModel {
-        string callId = 1;
-        AbonentModel abonent = 2;
+    message SuccessModel {
+        int64 callId = 1;
+        int64 instanceId = 2;
         IceSettingsModel iceSettings = 3;
     }
     
     oneof result {
-        CreatedModel created = 1;
+        SuccessModel success = 1;
         DISPOSE_REASON disposeReason = 2;
     }
 }
-
+message RingingCallRequest {
+    int64 callId = 1;
+}
 
 message AnswerCallRequest {
-    string callId = 1;
+    int64 callId = 1;
 }
 
 message AnswerCallResponse {
     
+    message SuccessModel {
+        int64 instanceId = 1;
+        IceSettingsModel iceSettings = 2;
+    }
+    
     oneof result {
-        DISPOSE_REASON disposeReason = 1;
-        Empty callNotExists = 2;
-        IceSettingsModel iceSettings = 3;
+        SuccessModel success = 1; 
+        DISPOSE_REASON disposeReason = 2;
     }
 }
 
@@ -147,8 +169,9 @@ message JoinCallRequest {
 }
 
 message JoinCallResponse {
+    
     oneof result {
-        Empty callNotExists = 1;
+        Empty success = 1;
         DISPOSE_REASON disposeReason = 2;
     }
 }
@@ -157,31 +180,78 @@ message DisposeCallRequest {
     DisposeCallModel dispose = 1;
 }
 
-message ServerStreamMessage {
-    
-    message ServerCallsModel {
+message PeerModel {
+    PEER_TYPE type = 1;
+    PeerIdModel peerId = 2;
+}
 
-        message ServerCallModel {
-            string callId = 1;
-            CALL_STATE state = 2;
-            CALL_DIRECTION direction = 3;
-            bool currentDevice = 4;
-            AbonentModel abonent = 5;
-            int64 answerUTCDate = 6;
-        }
-        
-        repeated ServerCallModel serverCalls = 1;
+message JoinGroupCallRequest {
+    PeerModel peer = 1;
+}
+
+message JoinGroupCallResponse {
+    
+    oneof reuslt {
+        Empty success = 1;
+        DISPOSE_REASON disposeReason = 2;
     }
+}
+
+message HangupGroupCallRequest {
+    string groupCallId = 1;
+}
+
+
+message ServerStreamMessage {
     
     message ServerDisposeCallModel {
         DISPOSE_REASON disposeReason = 1;
         DisposeCallModel dispose = 2;
+    }
+
+    message ServerCallModel {
+        int64 stateId = 1;
+        int64 callId = 2;
+        int64 instanceId = 3;
+        CALL_STATE state = 4;
+        CALL_DIRECTION direction = 5;
+        bool currentDevice = 6;
+        AbonentModel abonent = 7;
+        int64 answerDateUTC = 8;
+    }
+    
+    message ServerCallsModel {
+        repeated ServerCallModel serverCalls = 1;
+    }
+    
+    message GroupCallsModel {
         
+        message GroupCallModel {
+            
+            message GroupCallParticipantModel {
+                bool active = 1;
+                PeerIdModel user = 2;
+            }
+            
+            int64 stateId = 1;
+            string groupCallId = 2;
+            int64 participantId = 3;
+            PeerIdModel from = 4;
+            PeerModel too = 5;
+            repeated GroupCallParticipantModel partitipants = 6;
+        }
+        
+        repeated GroupCallModel groupCalls = 1;
+    }
+    
+    message ServerCallsStateModel {
+        ServerCallsModel serverCalls = 1;
+        GroupCallsModel groupCalls = 2;
     }
     
     oneof event {
-        ServerCallsModel serverCalls = 1;
-        JoinCallModel join = 2;
-        ServerDisposeCallModel dispose = 3;
+        JoinCallModel join = 1;
+        ServerDisposeCallModel dispose = 2;
+        ServerCallsStateModel callsState = 3;
     }
 }
