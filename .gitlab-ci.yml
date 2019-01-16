@@ -1,4 +1,4 @@
-image: java:8-jdk
+image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
 
 build:
     stage: build
