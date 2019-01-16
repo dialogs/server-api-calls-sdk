@@ -6,4 +6,4 @@ build:
         ./gradlew build
     artifacts:
         paths:
-        - build/libs/"*.jar"
+        - build/libs/**.jar
