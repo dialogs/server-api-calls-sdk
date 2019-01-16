@@ -1,6 +1,10 @@
-image: gradle
+image: java:8-jdk
 
 build:
     stage: build
     script:
-        ./gradlew clean build
+        ./gradlew build
+    artifacts:
+        paths:
+        - build/libs/*.jar
+    expire_in: 1 hour
