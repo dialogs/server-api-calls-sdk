@@ -1,4 +1,4 @@
-image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
+image: gitlab.transmit.im:5001/docker/java-oracle
 
 build:
     stage: build
