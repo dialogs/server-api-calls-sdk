@@ -1,4 +1,4 @@
-image: java:8-jdk
+image: gitlab.transmit.im:5001/docker/java-oracle
 
 build:
     stage: build
@@ -6,4 +6,4 @@ build:
         ./gradlew build
     artifacts:
         paths:
-        - build/libs/*.jar
+        - "build/libs/*.jar"
