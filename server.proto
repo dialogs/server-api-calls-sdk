@@ -1,15 +1,22 @@
 syntax = "proto3";
 
 package im.dlg.sdk.calls;
-option java_package = "im.dlg.sdk.calls.server.api";
 
+/* Call Service - main server interface for calls SDK */
 service CallService {
+    /* Stream connection for server -> client messages */
     rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
+    /* Prepare call on server */
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
+    /* Prepare call on server */
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
+    /* Indicate that client see incommin call */
     rpc ringingCall (RingingCallRequest) returns (Empty) {};
+    /* SDP exchange */
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
+    /* Hangup call */
     rpc disposeCall (DisposeCallRequest) returns (Empty) {};
+    /* Indicate server message received */
     rpc ack (AckRequest) returns (Empty) {};
     rpc joinGroupCall (JoinGroupCallRequest) returns (JoinGroupCallResponse) {}
     rpc hangupGroupCall (HangupGroupCallRequest) returns (Empty) {}
