@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package im.dlg.sdk.calls;
+option java_package = "im.dlg.sdk.calls.server.api";
 
 /* Call Service - main server interface for calls SDK */
 service CallService {
