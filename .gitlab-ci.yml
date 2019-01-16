@@ -1,4 +1,4 @@
-image: java
+image: gradle
 
 build:
     stage: build
