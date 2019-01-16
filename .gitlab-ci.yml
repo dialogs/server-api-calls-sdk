@@ -1,0 +1,6 @@
+image: java
+
+build:
+    stage: build
+    script:
+        ./gradlew clean build
