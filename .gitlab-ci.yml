@@ -11,7 +11,8 @@ build_web:
     image: node
     stage: build
     script:
-        ./gradlew build
+        - npm install
+        - npm run-script install
     artifacts:
         paths:
-        - "build/libs/*.jar"
+            - "npm"
