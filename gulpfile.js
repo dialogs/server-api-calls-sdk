@@ -64,6 +64,8 @@ gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
         .src(['./generated/*.ts'])
         
         .pipe(gulpReplace("import * as $protobuf from 'protobufjs';", ''))
+        .pipe(gulpReplace("import { Observable } from 'rxjs/Observable';", "import { Observable } from 'rxjs/Rx';"))
+
         
         .pipe(gulpReplace('INBOUND = 1', 'INBOUND = "INBOUND"'))
         .pipe(gulpReplace('OUTBOUND = 2', 'OUTBOUND = "OUTBOUND"'))
@@ -106,11 +108,21 @@ gulp.task('grpc-copy-proto-to-npm', function () {
             .pipe(gulp.dest("./npm/src"));
 });
 
+gulp.task('generate-package.json', function (cb) {
+    fs.writeFileSync("npm/package.json", JSON.stringify({
+        name : "@dlghq/server-api-calls-sdk",
+        version : packageJson.version,
+        main: "src/index.js"
+    }, null, 4));
+    
+    cb ()
+});
+
 // =============================================================================
 // Build
 // =============================================================================
 
-gulp.task('build',['grpc-copy-proto-to-npm','grpc']);
+gulp.task('build',['grpc-copy-proto-to-npm','grpc','generate-package.json']);
 
 // =============================================================================
 // Default

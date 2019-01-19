@@ -10,6 +10,6 @@
         "sourceMap" : true
     },
     "files": [
-        "genereated/index.ts"
+        "generated/index.ts"
     ]
 }
