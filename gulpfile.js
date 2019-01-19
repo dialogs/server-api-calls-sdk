@@ -23,7 +23,6 @@ gulp.task ('createDirs', function (cb) {
     
     createDir ('generated');
     createDir ('npm');
-    createDir ('npm/src');
     
     return cb ();
 });
@@ -105,14 +104,14 @@ gulp.task('grpc',['grpc-replace-enum'], function () {
 
 gulp.task('grpc-copy-proto-to-npm', function () {
     return gulp.src('./server.proto')
-            .pipe(gulp.dest("./npm/src"));
+            .pipe(gulp.dest("./npm"));
 });
 
 gulp.task('generate-package.json', function (cb) {
     fs.writeFileSync("npm/package.json", JSON.stringify({
         name : "@dlghq/server-api-calls-sdk",
         version : packageJson.version,
-        main: "src/index.js"
+        main: "index.js"
     }, null, 4));
     
     cb ()

@@ -5,7 +5,7 @@
         "suppressImplicitAnyIndexErrors" : true,
         "target" : "ES6",
         "moduleResolution" : "node",
-        "outDir" : "npm/src",
+        "outDir" : "npm",
         "declaration" : true,
         "sourceMap" : true
     },
