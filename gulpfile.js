@@ -1,3 +1,4 @@
+const fs = require ('fs');
 const rxjsGrpc = require('rxjs-grpc/js/cli');
 
 const gulp = require('gulp');
@@ -31,18 +32,18 @@ gulp.task ('createDirs', function (cb) {
 // =============================================================================
 
 gulp.task('grpc-copy-proto-to-generated', function () {
-    return gulp.src('./src/server/proto/**/*.proto')
-            .pipe (gulp.dest('./src/server/generated/'));
+    return gulp.src('./*.proto')
+            .pipe (gulp.dest('./generated/'));
 });
 
 gulp.task('grpc-remove-package-from-proto',['grpc-copy-proto-to-generated'], function () {
-    return gulp.src('./src/server/generated/*.proto')
+    return gulp.src('./generated/*.proto')
             .pipe (gulpReplace (/package.*/, 'package api;'))
-            .pipe (gulp.dest('./src/server/generated/'));
+            .pipe (gulp.dest('./generated/'));
 });
 
 gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
-    fs.readdir ("src/server/generated", function (error, files ) {
+    fs.readdir ("generated", function (error, files ) {
         if (error) {
             cb (error);
         }
@@ -50,7 +51,7 @@ gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
             rx.Observable.from (files)
                 .filter (file => file.toLowerCase().endsWith (".proto"))
                 .map (file => file.replace(".proto",""))
-                .flatMap (file => rx.Observable.fromPromise (rxjsGrpc.main(['-o', `./src/server/generated/${file}.ts`, `./src/server/generated/${file}.proto`])))
+                .flatMap (file => rx.Observable.fromPromise (rxjsGrpc.main(['-o', `./generated/${file}.ts`, `./generated/${file}.proto`])))
                 .toArray ()
                 .subscribe (()=> cb (), cb);
         }
@@ -59,7 +60,7 @@ gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
 
 gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
     return gulp
-        .src(['./src/server/generated/*.ts'])
+        .src(['./generated/*.ts'])
         
         .pipe(gulpReplace('INBOUND = 1', 'INBOUND = "INBOUND"'))
         .pipe(gulpReplace('OUTBOUND = 2', 'OUTBOUND = "OUTBOUND"'))
@@ -81,29 +82,20 @@ gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
         .pipe(gulpReplace('PICKED_UP = 8', 'PICKED_UP = "PICKED_UP"'))
         .pipe(gulpReplace('CALL_DOES_NOT_EXISTS = 9', 'CALL_DOES_NOT_EXISTS = "CALL_DOES_NOT_EXISTS"'))
 
-        .pipe(gulpReplace('OFFER = 1', 'OFFER = "OFFER"'))
-        .pipe(gulpReplace('ANSWER = 2', 'ANSWER = "ANSWER"'))
-
         .pipe(gulpReplace('RELAY = 1', 'RELAY = "RELAY"'))
         .pipe(gulpReplace('ALL = 2', 'ALL = "ALL"'))
         .pipe(gulpReplace('NONE = 3', 'NONE = "NONE"'))
 
         .pipe(gulpReplace('USER = 1', 'USER = "USER"'))
         .pipe(gulpReplace('GROUP = 2', 'GROUP = "GROUP"'))
-
-        .pipe(gulpReplace('INBOUD = 1', 'INBOUD = "INBOUND"'))
-        .pipe(gulpReplace('OUTBOUND = 2', 'OUTBOUND = "OUTBOUND"'))
-
-        .pipe(gulpReplace('ACTIVE = 0', 'ACTIVE = "ACTIVE"'))
-        .pipe(gulpReplace('BLOCKED = 1', 'BLOCKED = "BLOCKED"'))
    
-        .pipe(gulp.dest('./src/server/generated/'));    
+        .pipe(gulp.dest('./generated/'));    
 });
 
 gulp.task('grpc',['grpc-replace-enum'], function () {
-    return gulp.src('src/server/generated/*.ts')
+    return gulp.src('./generated/*.ts')
         .pipe (gulpReplace ('(number|$protobuf.Long)', 'number'))
-        .pipe (gulp.dest('./src/server/generated/'));
+        .pipe (gulp.dest('./generated/'));
 });
 
 gulp.task('grpc-copy-proto-to-npm', function () {
@@ -115,7 +107,7 @@ gulp.task('grpc-copy-proto-to-npm', function () {
 // Build
 // =============================================================================
 
-gulp.task('build',['grpc-copy-proto-to-npm']);
+gulp.task('build',['grpc-copy-proto-to-npm','grpc']);
 
 // =============================================================================
 // Default

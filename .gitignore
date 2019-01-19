@@ -2,3 +2,6 @@
 /.gradle/
 /*.iml
 /build/
+/node_modules/
+/generated/
+/npm/
