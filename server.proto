@@ -7,19 +7,29 @@ option java_package = "im.dlg.sdk.calls.server.api";
 service CallService {
     /* Stream connection for server -> client messages */
     rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
+    
     /* Prepare call on server */
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
+    
     /* Prepare call on server */
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
+    
     /* Indicate that client see incommin call */
     rpc ringingCall (RingingCallRequest) returns (Empty) {};
+    
     /* SDP exchange */
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
+    
     /* Hangup call */
     rpc disposeCall (DisposeCallRequest) returns (Empty) {};
+    
     /* Indicate server message received */
     rpc ack (AckRequest) returns (Empty) {};
+    
+    /* Join to group call */
     rpc joinGroupCall (JoinGroupCallRequest) returns (JoinGroupCallResponse) {}
+    
+    /* Leave group call */
     rpc hangupGroupCall (HangupGroupCallRequest) returns (Empty) {}
 }
 
@@ -27,14 +37,31 @@ message Empty {}
 
 enum DISPOSE_REASON {
     DISPOSE_REASON_UNKNOWN = 0;
+    /* Server internal error */
     SERVER_ERROR = 1;
+    
+    /* Normal call ending */
     NORMAL = 2;
+    
+    /* Callee not found */
     CALLEE_NOT_FOUND = 3;
+    
+    /* Caller is not allowed to call */
     CALLER_DISABLED = 4;
+    
+    /* Callee is not allowed to call */
     CALLEE_DISABLED = 5;
+    
+    /* Callee not answered */
     NO_ANSWER = 6;
+    
+    /* Callee is busy */
     BUSY = 7;
+    
+    /* Call was pickup up on another device */
     PICKED_UP = 8;
+    
+    /* Call is not exists */
     CALL_DOES_NOT_EXISTS = 9;
 }
 
