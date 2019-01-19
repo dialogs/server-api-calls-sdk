@@ -1,4 +1,5 @@
 const fs = require ('fs');
+const rx = require ("rxjs/Rx");
 const rxjsGrpc = require('rxjs-grpc/js/cli');
 
 const gulp = require('gulp');
@@ -51,7 +52,7 @@ gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
             rx.Observable.from (files)
                 .filter (file => file.toLowerCase().endsWith (".proto"))
                 .map (file => file.replace(".proto",""))
-                .flatMap (file => rx.Observable.fromPromise (rxjsGrpc.main(['-o', `./generated/${file}.ts`, `./generated/${file}.proto`])))
+                .flatMap (file => rx.Observable.fromPromise (rxjsGrpc.main(['-o', `./generated/index.ts`, `./generated/${file}.proto`])))
                 .toArray ()
                 .subscribe (()=> cb (), cb);
         }
@@ -61,6 +62,8 @@ gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
 gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
     return gulp
         .src(['./generated/*.ts'])
+        
+        .pipe(gulpReplace("import * as $protobuf from 'protobufjs';", ''))
         
         .pipe(gulpReplace('INBOUND = 1', 'INBOUND = "INBOUND"'))
         .pipe(gulpReplace('OUTBOUND = 2', 'OUTBOUND = "OUTBOUND"'))

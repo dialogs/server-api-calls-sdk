@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators" : true,
+        "noImplicitAny" : true,
+        "suppressImplicitAnyIndexErrors" : true,
+        "target" : "ES6",
+        "moduleResolution" : "node",
+        "outDir" : "npm/src",
+        "declaration" : true,
+        "sourceMap" : true
+    },
+    "files": [
+        "genereated/index.ts"
+    ]
+}

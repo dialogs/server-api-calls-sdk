@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "author": "imd@dlg.im",
     "scripts": {
-        "install": "gulp"
+        "install": "gulp && && tsc -p tsc.json"
     },
     "devDependencies": {
         "gulp": "3.9.1",
@@ -12,6 +12,8 @@
         "gulp-replace": "*",
         "gulp-sequence": "*",
         "rxjs-grpc": "*",
-        "typescript": "*"
+        "typescript": "*",
+        "rxjs": "*",
+        "rxjs-compat": "*"
     }
 }
