@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators" : true,
+        "noImplicitAny" : true,
+        "suppressImplicitAnyIndexErrors" : true,
+        "target" : "ES6",
+        "module" : "commonjs",
+        "moduleResolution" : "node",
+        "outDir" : "npm",
+        "declaration" : true,
+        "sourceMap" : true
+    },
+    "files": [
+        "generated/index.ts"
+    ]
+}

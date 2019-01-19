@@ -1,9 +1,18 @@
-image: gitlab.transmit.im:5001/docker/java-oracle
-
-build:
+build_android:
+    image: gitlab.transmit.im:5001/docker/java-oracle
     stage: build
     script:
         ./gradlew build
     artifacts:
         paths:
         - "build/libs/*.jar"
+
+build_web:
+    image: node
+    stage: build
+    script:
+        - npm install
+        - npm run-script install
+    artifacts:
+        paths:
+            - "npm"

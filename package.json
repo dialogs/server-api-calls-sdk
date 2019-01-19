@@ -1,0 +1,19 @@
+{
+    "name": "server-api-calls-sdk",
+    "version": "1.0.0",
+    "author": "imd@dlg.im",
+    "scripts": {
+        "install": "gulp && tsc -p tsc.json"
+    },
+    "devDependencies": {
+        "gulp": "3.9.1",
+        "gulp-clean": "*",
+        "gulp-copy": "*",
+        "gulp-replace": "*",
+        "gulp-sequence": "*",
+        "rxjs": "*",
+        "rxjs-compat": "*",
+        "rxjs-grpc": "*",
+        "typescript": "*"
+    }
+}
