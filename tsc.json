@@ -4,6 +4,7 @@
         "noImplicitAny" : true,
         "suppressImplicitAnyIndexErrors" : true,
         "target" : "ES6",
+        "module" : "commonjs",
         "moduleResolution" : "node",
         "outDir" : "npm",
         "declaration" : true,
