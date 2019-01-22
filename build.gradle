@@ -1,35 +1,39 @@
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
-version = '1.0.0'
+group = 'im.dlg'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+if (System.getenv('CI_COMMIT_REF_NAME') == "master") {
+        version = '1.0.0'
+    } 
+else {
+        version = System.getenv('CI_COMMIT_REF_NAME').replaceAll("\\/","-") + '-' + System.getenv('CI_JOB_ID')
+    }
 
 repositories {
-    google()
-    jcenter()
-    mavenCentral()
+  maven { url "https://plugins.gradle.org/m2/" }
+  jcenter()
 }
 
-
 buildscript {
-    repositories {
-        google()
-        jcenter()
-        mavenCentral()
+  repositories {
+    maven { url "https://plugins.gradle.org/m2/" }
     }
-
-    dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.7'
-    }
+  dependencies {
+    classpath "gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8"
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+  }
 }
 
 dependencies {
+    compile 'io.grpc:grpc-okhttp:1.17.1'
+    compile 'io.grpc:grpc-protobuf:1.17.1'
+    compile 'io.grpc:grpc-stub:1.17.1'
+
     protobuf files('./server.proto')
-    compileOnly 'io.grpc:grpc-okhttp:1.17.1'
-    compileOnly 'io.grpc:grpc-protobuf:1.17.1'
-    compileOnly 'io.grpc:grpc-stub:1.17.1'
 }
 
 protobuf {
@@ -67,7 +71,26 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
+publishing {
+	publications {
+		MyPublication(MavenPublication) {
+			artifactId = 'server-api-calls-sdk'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+		}
+	}
+}
+
+bintray {
+	user = System.getenv('BINTRAY_USER')
+	key = System.getenv('BINTRAY_API_KEY')
+    publications = ['MyPublication']
+    publish = true
+    pkg {
+		repo = 'dlg'
+		name = 'server-api-calls-sdk'
+		userOrg = 'dialog'
+		vcsUrl = 'https://gitlab.transmit.im/sdk/calls/server-api-calls-sdk'
+	}
 }
