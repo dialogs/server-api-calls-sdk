@@ -1,5 +1,5 @@
 build_android:
-    image: gitlab.transmit.im:5001/docker/java-oracle
+    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     script:
         ./gradlew build
@@ -8,11 +8,35 @@ build_android:
         - "build/libs/*.jar"
 
 build_web:
+    except:
+        - master
     image: node
-    stage: build
+    stage: build & publish
     script:
         - npm install
         - npm run-script install
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
+        - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_NAME-$CI_JOB_ID
+        - cd npm
+        - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
+        - npm publish --tag=$CI_COMMIT_REF_NAME
+    artifacts:
+        paths:
+            - "npm"
+    
+    only:
+        - master
+    image: node
+    stage: build & publish
+    script:
+        - npm install
+        - npm run-script install
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
+        - cd npm
+        - sed -Ei 's/VERSION/'$RELEASE_VERSION'/g' package.json
+        - npm publish --tag=latest
     artifacts:
         paths:
             - "npm"
