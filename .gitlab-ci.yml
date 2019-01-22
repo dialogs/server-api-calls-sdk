@@ -7,7 +7,7 @@ build_android:
         paths:
         - "build/libs/*.jar"
 
-build_web:
+build_web_dev:
     except:
         - master
     image: node
@@ -24,7 +24,8 @@ build_web:
     artifacts:
         paths:
             - "npm"
-    
+ 
+build_web_release:   
     only:
         - master
     image: node
