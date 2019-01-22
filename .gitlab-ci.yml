@@ -11,7 +11,7 @@ build_web_dev:
     except:
         - master
     image: node
-    stage: build & publish
+    stage: build
     script:
         - npm install
         - npm run-script install
@@ -29,7 +29,7 @@ build_web_release:
     only:
         - master
     image: node
-    stage: build & publish
+    stage: build
     script:
         - npm install
         - npm run-script install
