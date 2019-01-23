@@ -17,10 +17,10 @@ build_web_dev:
         - npm run-script install
         - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
         - export RELEASE_VERSION=$(node -p "require('./package.json').version")
-        - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_NAME-$CI_JOB_ID
+        - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
         - cd npm
         - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
-        - npm publish --tag=$CI_COMMIT_REF_NAME
+        - npm publish --tag=$CI_COMMIT_REF_SLUG
     artifacts:
         paths:
             - "npm"
