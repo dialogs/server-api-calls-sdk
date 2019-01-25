@@ -1,34 +1,39 @@
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
 group = 'im.dlg'
-
+version = '1.0.0'
 if (System.getenv('CI_COMMIT_REF_SLUG') == null) {
-    version= "local-snapshot"
+    version = version + "-local-SNAPSHOT"
 }
-else {
-    if (System.getenv('CI_COMMIT_REF_SLUG') == "master") {
-        version = System.getenv('CI_COMMIT_REF_SLUG')
-    } 
-    else {
-        version = System.getenv('CI_COMMIT_REF_SLUG') + '-' + System.getenv('CI_JOB_ID')
-    }
+else if (System.getenv('CI_COMMIT_REF_SLUG') != "master") {
+    version = version + System.getenv('CI_COMMIT_REF_SLUG') + '-SNAPSHOT'
 }
+
 
 repositories {
-    maven { url "https://plugins.gradle.org/m2/" }
-    jcenter()
+    maven { 
+        url "https://nexus.transmit.im/repository/maven-all/"
+        credentials {
+            username mavenUser
+            password mavenPassword
+        }
+    }
 }
 
 buildscript {
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { 
+            url "https://nexus.transmit.im/repository/maven-all/"
+            credentials {
+                username mavenUser
+                password mavenPassword
+            }
+        }
     }
     dependencies {
-        classpath "gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
     }
 }
 
@@ -84,17 +89,15 @@ publishing {
             artifact javadocJar
         }
     }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_API_KEY')
-    publications = ['MyPublication']
-    publish = true
-    pkg {
-        repo = 'dlg'
-        name = 'server-api-calls-sdk'
-        userOrg = 'dialog'
-        vcsUrl = 'https://gitlab.transmit.im/sdk/calls/server-api-calls-sdk'
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://nexus.transmit.im/repository/release-local/"
+            def snapshotsRepoUrl = "https://nexus.transmit.im/repository/snapshot-local/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username mavenUser
+                password mavenPassword
+            }
+        }
     }
 }
