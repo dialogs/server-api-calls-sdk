@@ -1,12 +1,20 @@
 build_android:
-    when: manual
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     script:
-        ./gradlew build bintrayUpload --info
+        ./gradlew build
     artifacts:
         paths:
         - "build/libs/*.jar"
+
+publish_android:
+    when: manual
+    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
+    stage: deploy
+    script:
+        ./gradlew bintrayUpload --info
+    dependencies: 
+        - build_android
 
 build_npm:
     stage: build
