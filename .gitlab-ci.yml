@@ -34,7 +34,7 @@ publish_npm:
         #- npm publish --tag=$CI_COMMIT_REF_SLUG
         - cat package.json
     dependencies: 
-        - build
+        - build_npm
 
 release_npm:
     only:
@@ -50,7 +50,7 @@ release_npm:
         - cat package.json
         #- npm publish --tag=latest
     dependencies: 
-        - build
+        - build_npm
 
 #build_web_dev:
 #    except:
