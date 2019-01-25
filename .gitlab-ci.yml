@@ -19,6 +19,39 @@ build_npm:
         paths:
             - npm
 
+publish_npm:
+    except:
+        - master
+    stage: deploy
+    image: node
+    when: manual
+    script:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
+        - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
+        - cd npm
+        - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
+        #- npm publish --tag=$CI_COMMIT_REF_SLUG
+        - cat package.json
+    dependencies: 
+        - build
+
+release_npm:
+    only:
+        - master
+    stage: deploy
+    image: node
+    when: manual
+    script:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
+        - cd npm
+        - sed -Ei 's/VERSION/'$RELEASE_VERSION'/g' package.json
+        - cat package.json
+        #- npm publish --tag=latest
+    dependencies: 
+        - build
+
 #build_web_dev:
 #    except:
 #        - master
