@@ -2,7 +2,8 @@ build_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     script:
-        - echo "mavenUser=$MAVENUSER\nmavenPassword=$NEXUSPASS" > gradle.properties
+        - echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
         - ./gradlew build
     artifacts:
         paths:
@@ -13,8 +14,9 @@ publish_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
     script:
-        - echo "mavenUser=$MAVENUSER\nmavenPassword=$NEXUSPASS" > gradle.properties
-        - ./gradlew build publish
+        - echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - ./gradlew publish
     dependencies: 
         - build_android
 
@@ -28,34 +30,16 @@ build_npm:
             - npm
 
 publish_npm:
-    except:
-        - master
     stage: deploy
     image: node
     when: manual
     script:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
         - export RELEASE_VERSION=$(node -p "require('./package.json').version")
-        - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
+        - (if [ $CI_COMMIT_REF_SLUG == "master" ]; then export DEVELOP_VERSION=$RELEASE_VERSION; else DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID; fi)
         - cd npm
         - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
-        - npm publish --tag=$CI_COMMIT_REF_SLUG-latest
+        - (if [ $CI_COMMIT_REF_SLUG == "master" ]; then publish --tag=latest; else publish --tag=$CI_COMMIT_REF_SLUG-latest; fi)
         - cat package.json
-    dependencies: 
-        - build_npm
-
-release_npm:
-    only:
-        - master
-    stage: deploy
-    image: node
-    when: manual
-    script:
-        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
-        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
-        - cd npm
-        - sed -Ei 's/VERSION/'$RELEASE_VERSION'/g' package.json
-        - cat package.json
-        - npm publish --tag=latest
     dependencies: 
         - build_npm
