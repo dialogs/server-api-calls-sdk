@@ -28,6 +28,7 @@ build_web_dev:
 build_web_release:   
     only:
         - master
+    when: manual
     image: node
     stage: build
     script:
