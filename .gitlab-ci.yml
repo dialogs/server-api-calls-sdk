@@ -39,7 +39,7 @@ publish_npm:
         - (if [ $CI_COMMIT_REF_SLUG == "master" ]; then export DEVELOP_VERSION=$RELEASE_VERSION; else DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID; fi)
         - cd npm
         - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
-        - (if [ $CI_COMMIT_REF_SLUG == "master" ]; then publish --tag=latest; else publish --tag=$CI_COMMIT_REF_SLUG-latest; fi)
+        - (if [ $CI_COMMIT_REF_SLUG == "master" ]; then npm publish --tag=latest; else npm publish --tag=$CI_COMMIT_REF_SLUG-latest; fi)
         - cat package.json
     dependencies: 
         - build_npm
