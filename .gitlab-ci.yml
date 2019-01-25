@@ -41,7 +41,7 @@ publish_npm:
         - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
         - cd npm
         - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
-        - npm publish --tag=$CI_COMMIT_REF_SLUG
+        - npm publish --tag=$CI_COMMIT_REF_SLUG-latest
         - cat package.json
     dependencies: 
         - build_npm
