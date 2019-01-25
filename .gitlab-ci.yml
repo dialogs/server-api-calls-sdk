@@ -2,7 +2,8 @@ build_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     script:
-        - echo "mavenUser=${NEXUSUSER}\nmavenPassword=${NEXUSPASS}" > gradle.properties
+        - echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
         - ./gradlew build
     artifacts:
         paths:
