@@ -31,6 +31,10 @@ service CallService {
     
     /* Leave group call */
     rpc hangupGroupCall (HangupGroupCallRequest) returns (Empty) {}
+    
+    rpc addGroupCallParticipant (AddGroupCallParticipantRequest) returns (AddGroupCallParticipantResponse) {}
+    
+    rpc removeGroupCallParticipant (RemoveGroupCallParticipantRequest) returns (Empty) {}
 }
 
 message Empty {}
@@ -235,6 +239,24 @@ message JoinGroupCallResponse {
 
 message HangupGroupCallRequest {
     string groupCallId = 1;
+}
+
+message AddGroupCallParticipantRequest {
+    string groupCallId = 1;
+    PeerIdModel peer = 2;
+}
+
+message AddGroupCallParticipantResponse {
+    
+    oneof reuslt {
+        Empty success = 1;
+        DISPOSE_REASON disposeReason = 2;
+    }
+}
+
+message RemoveGroupCallParticipantRequest {
+    string groupCallId = 1;
+    int64 userId = 2;
 }
 
 
