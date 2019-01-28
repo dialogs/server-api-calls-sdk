@@ -24,7 +24,8 @@ build_npm:
     stage: build
     image: node
     script:
-        - yarn
+        - npm install
+        - npm run-script install
     artifacts:
         paths:
             - npm
