@@ -3,69 +3,28 @@ syntax = "proto3";
 package im.dlg.sdk.calls;
 option java_package = "im.dlg.sdk.calls.server.api";
 
-/* Call Service - main server interface for calls SDK */
 service CallService {
-    /* Stream connection for server -> client messages */
     rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
-    
-    /* Prepare call on server */
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
-    
-    /* Prepare call on server */
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
-    
-    /* Indicate that client see incommin call */
     rpc ringingCall (RingingCallRequest) returns (Empty) {};
-    
-    /* SDP exchange */
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
-    
-    /* Hangup call */
     rpc disposeCall (DisposeCallRequest) returns (Empty) {};
-    
-    /* Indicate server message received */
     rpc ack (AckRequest) returns (Empty) {};
-    
-    /* Join to group call */
-    rpc joinGroupCall (JoinGroupCallRequest) returns (JoinGroupCallResponse) {}
-    
-    /* Leave group call */
-    rpc hangupGroupCall (HangupGroupCallRequest) returns (Empty) {}
-    
-    rpc addGroupCallParticipant (AddGroupCallParticipantRequest) returns (AddGroupCallParticipantResponse) {}
-    
-    rpc removeGroupCallParticipant (RemoveGroupCallParticipantRequest) returns (Empty) {}
 }
 
 message Empty {}
 
 enum DISPOSE_REASON {
     DISPOSE_REASON_UNKNOWN = 0;
-    /* Server internal error */
     SERVER_ERROR = 1;
-    
-    /* Normal call ending */
     NORMAL = 2;
-    
-    /* Callee not found */
     CALLEE_NOT_FOUND = 3;
-    
-    /* Caller is not allowed to call */
     CALLER_DISABLED = 4;
-    
-    /* Callee is not allowed to call */
     CALLEE_DISABLED = 5;
-    
-    /* Callee not answered */
     NO_ANSWER = 6;
-    
-    /* Callee is busy */
     BUSY = 7;
-    
-    /* Call was pickup up on another device */
     PICKED_UP = 8;
-    
-    /* Call is not exists */
     CALL_DOES_NOT_EXISTS = 9;
 }
 
@@ -97,35 +56,33 @@ enum PEER_TYPE {
     GROUP = 2;
 }
 
-message IceServerModel {
-    string username = 1;
-    string password = 2;
-    repeated string urls = 3;
-}
-
 message IceSettingsModel {
+
+    message IceServerModel {
+        string username = 1;
+        string password = 2;
+        repeated string urls = 3;
+    }    
+    
     ICE_SETTINGS settings = 1;
     repeated IceServerModel iceServers = 2;
 }
-
-
-message PeerIdModel {
-    int64 peerId = 1;
-    int64 accessHash = 2;
-}
-
-message AbonentModel {
     
-    message KnownAbonentModel {
-        
-        string name = 1;
-        string nick = 2;
-        string phone = 3;
-        PeerIdModel user = 4;
+message ClientAbonentModel {
+    message UserModel {
+        int64 userId = 1;
+        int64 accessHash = 2;
     }
     
+    string name = 1;
+    string nick = 2;
+    string phone = 3;
+    UserModel user = 4;
+}
+
+message ServerAbonentModel {
     int64 abonentId = 1;
-    KnownAbonentModel abonent = 2;
+    ClientAbonentModel abonent = 2;
 }
 
 message SdpModel {
@@ -140,7 +97,7 @@ message JoinCallModel {
         message IceCandidateModel {
             string candidate = 1;
             string sdpMid = 2;
-            int32 sdpMLineIndex = 3;
+            int64 sdpMLineIndex = 3;
         }
         
         string id = 1;
@@ -167,7 +124,7 @@ message AckRequest {
 }
 
 message CreateCallRequest {
-    AbonentModel abonent = 2;
+    ClientAbonentModel abonent = 1;
 }
 
 message CreateCallResponse {
@@ -220,45 +177,6 @@ message DisposeCallRequest {
     DisposeCallModel dispose = 1;
 }
 
-message PeerModel {
-    PEER_TYPE type = 1;
-    PeerIdModel peerId = 2;
-}
-
-message JoinGroupCallRequest {
-    PeerModel peer = 1;
-}
-
-message JoinGroupCallResponse {
-    
-    oneof reuslt {
-        Empty success = 1;
-        DISPOSE_REASON disposeReason = 2;
-    }
-}
-
-message HangupGroupCallRequest {
-    string groupCallId = 1;
-}
-
-message AddGroupCallParticipantRequest {
-    string groupCallId = 1;
-    PeerIdModel peer = 2;
-}
-
-message AddGroupCallParticipantResponse {
-    
-    oneof reuslt {
-        Empty success = 1;
-        DISPOSE_REASON disposeReason = 2;
-    }
-}
-
-message RemoveGroupCallParticipantRequest {
-    string groupCallId = 1;
-    int64 userId = 2;
-}
-
 
 message ServerStreamMessage {
     
@@ -266,50 +184,26 @@ message ServerStreamMessage {
         DISPOSE_REASON disposeReason = 1;
         DisposeCallModel dispose = 2;
     }
-
-    message ServerCallModel {
-        int64 stateId = 1;
-        int64 callId = 2;
-        int64 instanceId = 3;
-        CALL_STATE state = 4;
-        CALL_DIRECTION direction = 5;
-        bool currentDevice = 6;
-        AbonentModel abonent = 7;
-        int64 answerDateUTC = 8;
-    }
     
     message ServerCallsModel {
-        repeated ServerCallModel serverCalls = 1;
-    }
-    
-    message GroupCallsModel {
-        
-        message GroupCallModel {
-            
-            message GroupCallParticipantModel {
-                bool active = 1;
-                PeerIdModel user = 2;
-            }
-            
+
+        message ServerCallModel {
             int64 stateId = 1;
-            string groupCallId = 2;
-            int64 participantId = 3;
-            PeerIdModel from = 4;
-            PeerModel too = 5;
-            repeated GroupCallParticipantModel partitipants = 6;
+            int64 callId = 2;
+            int64 instanceId = 3;
+            CALL_STATE state = 4;
+            CALL_DIRECTION direction = 5;
+            bool currentDevice = 6;
+            ServerAbonentModel abonent = 7;
+            int64 answerDateUTC = 8;
         }
         
-        repeated GroupCallModel groupCalls = 1;
-    }
-    
-    message ServerCallsStateModel {
-        ServerCallsModel serverCalls = 1;
-        GroupCallsModel groupCalls = 2;
+        repeated ServerCallModel serverCalls = 1;
     }
     
     oneof event {
         JoinCallModel join = 1;
         ServerDisposeCallModel dispose = 2;
-        ServerCallsStateModel callsState = 3;
+        ServerCallsModel serverCalls = 3;
     }
 }
