@@ -7,13 +7,13 @@
     },
     "devDependencies": {
         "gulp": "3.9.1",
-        "gulp-clean": "*",
-        "gulp-copy": "*",
-        "gulp-replace": "*",
-        "gulp-sequence": "*",
-        "rxjs": "*",
-        "rxjs-compat": "*",
-        "rxjs-grpc": "*",
-        "typescript": "*"
+        "gulp-clean": "0.4.0",
+        "gulp-copy": "4.0.1",
+        "gulp-replace": "1.0.0",
+        "gulp-sequence": "1.0.0",
+        "rxjs": "6.4.0",
+        "rxjs-compat": "6.4.0",
+        "rxjs-grpc": "0.1.8",
+        "typescript": "3.3.1"
     }
 }
