@@ -26,6 +26,7 @@ enum DISPOSE_REASON {
     BUSY = 7;
     PICKED_UP = 8;
     CALL_DOES_NOT_EXISTS = 9;
+    REJECTED = 10;
 }
 
 enum CALL_DIRECTION {
