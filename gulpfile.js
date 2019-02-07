@@ -85,6 +85,7 @@ gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
         .pipe(gulpReplace('BUSY = 7', 'BUSY = "BUSY"'))
         .pipe(gulpReplace('PICKED_UP = 8', 'PICKED_UP = "PICKED_UP"'))
         .pipe(gulpReplace('CALL_DOES_NOT_EXISTS = 9', 'CALL_DOES_NOT_EXISTS = "CALL_DOES_NOT_EXISTS"'))
+        .pipe(gulpReplace('REJECTED = 10', 'REJECTED = "REJECTED"'))
 
         .pipe(gulpReplace('RELAY = 1', 'RELAY = "RELAY"'))
         .pipe(gulpReplace('ALL = 2', 'ALL = "ALL"'))
