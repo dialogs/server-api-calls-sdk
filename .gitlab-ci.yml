@@ -1,3 +1,7 @@
+stages:
+  - build
+  - check
+  - deploy
 
 build_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
@@ -21,7 +25,8 @@ build_npm:
             - npm
 
 publish:
-    stage: test
+    stage: check
+    when: manual
     script:
         - echo "publish"
     dependencies: 
