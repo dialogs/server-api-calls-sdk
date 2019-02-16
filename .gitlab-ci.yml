@@ -22,11 +22,32 @@ build_npm:
 
 publish:
     when: manual
-    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
-    script:
-        - ls -l npm
-        - ls -l build/libs
     dependencies: 
         - build_android
         - build_npm
+
+publish_npm:
+    except:
+        - master
+    stage: deploy
+    when: manual
+    script:
+        #- export DEVELOP_VERSION=$VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
+        #- cd build/npm
+        #- sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
+        #- npm publish --tag=$CI_COMMIT_REF_SLUG-latest
+        - echo "publish_npm"
+    dependencies: 
+        - build
+
+publish_android:
+    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
+    stage: deploy
+    script:
+        #- echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        #- echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        #- ./gradlew publish
+        - echo "publish_android"
+    dependencies: 
+        - publish
