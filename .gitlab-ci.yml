@@ -23,6 +23,8 @@ build_npm:
 publish:
     when: manual
     stage: deploy
+    script:
+        - echo "publish"
     dependencies: 
         - build_android
         - build_npm
