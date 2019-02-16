@@ -41,7 +41,7 @@ publish_npm:
         #- npm publish --tag=$CI_COMMIT_REF_SLUG-latest
         - echo "publish_npm"
     dependencies: 
-        - build
+        - publish
 
 publish_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
