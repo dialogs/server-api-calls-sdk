@@ -21,7 +21,6 @@ build_npm:
             - npm
 
 publish:
-    when: manual
     stage: test
     script:
         - echo "publish"
