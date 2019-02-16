@@ -22,7 +22,7 @@ build_npm:
 
 publish:
     when: manual
-    stage: deploy
+    stage: test
     script:
         - echo "publish"
     dependencies: 
