@@ -29,6 +29,7 @@ publish:
     when: manual
     script:
         - echo "publish"
+    allow_failure: false
     dependencies: 
         - build_android
         - build_npm
