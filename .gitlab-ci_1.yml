@@ -1,0 +1,65 @@
+
+build_android:
+    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
+    stage: build
+    script:
+        - echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - ./gradlew build
+    artifacts:
+        paths:
+        - "build/libs/*.jar"
+
+publish_android:
+    when: manual
+    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
+    stage: deploy
+    script:
+        - echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - ./gradlew publish
+    dependencies: 
+        - build_android
+
+build_npm:
+    stage: build
+    image: node
+    script:
+        - npm install
+        - npm run-script install
+    artifacts:
+        paths:
+            - npm
+
+publish_npm:
+    except:
+        - master
+    stage: deploy
+    image: node
+    when: manual
+    script:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
+        - export DEVELOP_VERSION=$RELEASE_VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
+        - cd npm
+        - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
+        - npm publish --tag=$CI_COMMIT_REF_SLUG-latest
+        - cat package.json
+    dependencies: 
+        - build_npm
+
+release_npm:
+    only:
+        - master
+    stage: deploy
+    image: node
+    when: manual
+    script:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+        - export RELEASE_VERSION=$(node -p "require('./package.json').version")
+        - cd npm
+        - sed -Ei 's/VERSION/'$RELEASE_VERSION'/g' package.json
+        - cat package.json
+        - npm publish --tag=latest
+    dependencies: 
+        - build_npm
