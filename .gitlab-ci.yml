@@ -33,7 +33,6 @@ publish_npm:
     except:
         - master
     stage: deploy
-    when: manual
     script:
         #- export DEVELOP_VERSION=$VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
         #- cd build/npm
