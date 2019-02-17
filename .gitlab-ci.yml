@@ -50,6 +50,10 @@ publish:
         - master
     script:
         - echo "publish"
+    artifacts:
+        paths:
+            - "build/libs/*.jar"
+            - npm
     dependencies: 
         - build_android
         - build_npm
