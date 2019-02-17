@@ -1,6 +1,6 @@
 {
     "name": "server-api-calls-sdk",
-    "version": "1.0.5",
+    "version": "1.0.7",
     "author": "imd@dlg.im",
     "scripts": {
         "install": "gulp && tsc -p tsc.json"

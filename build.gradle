@@ -3,12 +3,15 @@ apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'
 
 group = 'im.dlg'
-version = '1.0.5'
+version = '1.0.7'
 
-if (System.getenv('CI_COMMIT_REF_SLUG') == null) {
+if (System.getenv('CI_COMMIT_REF_NAME') == null) {
     version = version + "-local-SNAPSHOT"
 }
-else if (System.getenv('CI_COMMIT_REF_SLUG') != "master") {
+else if (System.getenv('CI_COMMIT_REF_NAME').startsWith ("release/")) {
+    version = version + "-RELEASE"
+}
+else if (System.getenv('CI_COMMIT_REF_NAME') != "master") {
     version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-SNAPSHOT'
 }
 
