@@ -81,6 +81,9 @@ publish_android:
     when: manual
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
+    except:
+        - /release/.*/
+        - master
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
