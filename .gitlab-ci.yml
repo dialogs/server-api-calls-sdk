@@ -89,6 +89,7 @@ publish_android:
         - build_android
 
 release:
+    image: node
     except:
         - master
         - /release/.*/
