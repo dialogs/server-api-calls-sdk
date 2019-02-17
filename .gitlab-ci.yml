@@ -78,7 +78,6 @@ publish_npm:
         - build_npm
         
 publish_android:
-    when: manual
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
     script:
@@ -101,4 +100,25 @@ release:
     dependencies: 
         - build_npm
         - build_android
+
+publish_npm_release:
+    image: node
+    stage: deploy
+    only:
+        - /release/.*/
+    script:
+        - cd npm
+        - npm publish --tag=latest
+    dependencies: 
+        - build_npm_release
+        
+publish_android_release:
+    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
+    stage: deploy
+    script:
+        - echo "mavenUser=${NEXUSUSER}" > gradle.properties
+        - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - ./gradlew publish
+    dependencies: 
+        - build_android_release
         
