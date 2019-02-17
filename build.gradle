@@ -5,7 +5,6 @@ apply plugin: 'maven-publish'
 group = 'im.dlg'
 version = '1.0.6'
 
-System.out.println (version)
 System.out.println (System.getenv('CI_COMMIT_REF_SLUG'))
 
 if (System.getenv('CI_COMMIT_REF_SLUG') == null) {
@@ -17,6 +16,7 @@ else if (System.getenv('CI_COMMIT_REF_SLUG').startsWith ("release/")) {
 else if (System.getenv('CI_COMMIT_REF_SLUG') != "master") {
     version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-SNAPSHOT'
 }
+System.out.println (version)
 
 
 repositories {
