@@ -78,6 +78,7 @@ publish_npm:
         - build_npm
         
 publish_android:
+    when: manual
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
     script:
