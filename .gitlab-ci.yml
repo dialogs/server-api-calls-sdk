@@ -44,7 +44,7 @@ build_android:
 publish:
     stage: publish
     when: manual
-    allow_failure: true
+    allow_failure: false
     except:
         - /release/.*/
         - master
