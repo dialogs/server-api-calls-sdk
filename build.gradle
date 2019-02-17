@@ -5,6 +5,9 @@ apply plugin: 'maven-publish'
 group = 'im.dlg'
 version = '1.0.6'
 
+System.out.println (version)
+System.out.println (System.getenv('CI_COMMIT_REF_SLUG'))
+
 if (System.getenv('CI_COMMIT_REF_SLUG') == null) {
     version = version + "-local-SNAPSHOT"
 }
