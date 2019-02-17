@@ -67,8 +67,7 @@ publish_npm:
         - master
     script:
         - cd npm
-        #- npm publish --tag=$CI_COMMIT_REF_SLUG-latest
-        - ls -l
+        - npm publish --tag=$CI_COMMIT_REF_SLUG-latest
     dependencies:
         - publish
         
@@ -78,9 +77,7 @@ publish_android:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
-        #- ./gradlew publish
-        - cd build
-        - ls -l
+        - ./gradlew publish
     dependencies: 
         - publish
         
