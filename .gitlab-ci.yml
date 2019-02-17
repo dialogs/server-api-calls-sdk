@@ -44,6 +44,7 @@ build_android:
 publish:
     stage: publish
     when: manual
+    image: node
     allow_failure: false
     except:
         - /release/.*/
@@ -59,24 +60,27 @@ publish:
         - build_npm
 
 publish_npm:
+    image: node
     stage: deploy
     except:
         - /release/.*/
         - master
     script:
         - cd npm
-        - npm publish --tag=$CI_COMMIT_REF_SLUG-latest
+        #- npm publish --tag=$CI_COMMIT_REF_SLUG-latest
+        - ls -l
     dependencies:
         - publish
         
 publish_android:
-    when: manual
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
-        - ./gradlew publish
+        #- ./gradlew publish
+        - cd build
+        - ls -l
     dependencies: 
         - publish
         
