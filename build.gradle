@@ -8,6 +8,9 @@ version = '1.0.6'
 if (System.getenv('CI_COMMIT_REF_SLUG') == null) {
     version = version + "-local-SNAPSHOT"
 }
+else if (System.getenv('CI_COMMIT_REF_SLUG') == "develop") {
+    version = version + "-RELEASE"
+}
 else if (System.getenv('CI_COMMIT_REF_SLUG') != "master") {
     version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-SNAPSHOT'
 }

@@ -1,11 +1,35 @@
-stages:
-  - build
-  - check
-  - deploy
+image: node
+
+before_script:
+    - echo ${NPMRC} > ~/.npmrc
+    - export VERSION=$(node -p "require('./package.json').version")
+    - export DEVELOP_VERSION=$VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
+    - export RELEASE_VERSION=$VERSION-RELEASE
+    - export RELEASE_BRANCH=release/$VERSION
+    - export GITURL=https://imd:${GITLAB_TOKEN}@gitlab.transmit.im/sdk/calls/server-api-calls-sdk.git
+
+build_npm:
+    stage: build
+    image: node
+    except:
+        - /release/.*/
+        - master
+    script:
+        - npm install
+        - npm run-script install
+        - cd npm
+        - sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
+        - echo $(node -p "require('./package.json').version")
+    artifacts:
+        paths:
+            - build/npm
 
 build_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
+    except:
+        - /release/.*/
+        - master
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
@@ -13,47 +37,3 @@ build_android:
     artifacts:
         paths:
         - "build/libs/*.jar"
-
-build_npm:
-    stage: build
-    image: node
-    script:
-        - npm install
-        - npm run-script install
-    artifacts:
-        paths:
-            - npm
-
-publish:
-    stage: check
-    when: manual
-    script:
-        - echo "publish"
-    allow_failure: false
-    dependencies: 
-        - build_android
-        - build_npm
-
-publish_npm:
-    except:
-        - master
-    stage: deploy
-    script:
-        #- export DEVELOP_VERSION=$VERSION-$CI_COMMIT_REF_SLUG-$CI_JOB_ID
-        #- cd build/npm
-        #- sed -Ei 's/VERSION/'$DEVELOP_VERSION'/g' package.json
-        #- npm publish --tag=$CI_COMMIT_REF_SLUG-latest
-        - echo "publish_npm"
-    dependencies: 
-        - publish
-
-publish_android:
-    image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
-    stage: deploy
-    script:
-        #- echo "mavenUser=${NEXUSUSER}" > gradle.properties
-        #- echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
-        #- ./gradlew publish
-        - echo "publish_android"
-    dependencies: 
-        - publish
