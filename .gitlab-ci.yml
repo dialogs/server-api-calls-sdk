@@ -115,6 +115,8 @@ publish_npm_release:
 publish_android_release:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
+    only:
+        - /release/.*/
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
