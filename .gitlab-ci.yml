@@ -25,7 +25,7 @@ build_npm:
         - echo $(node -p "require('./package.json').version")
     artifacts:
         paths:
-            - build/npm
+            - npm
 
 build_android:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
