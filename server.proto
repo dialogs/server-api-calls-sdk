@@ -15,6 +15,14 @@ service CallService {
 
 message Empty {}
 
+message Int64Value {
+  int64 value = 1;
+}
+
+message StringValue {
+  string value = 1;
+}
+
 enum DISPOSE_REASON {
     DISPOSE_REASON_UNKNOWN = 0;
     SERVER_ERROR = 1;
@@ -75,9 +83,9 @@ message ClientAbonentModel {
         int64 accessHash = 2;
     }
     
-    string name = 1;
-    string nick = 2;
-    string phone = 3;
+    StringValue name = 1;
+    StringValue nick = 2;
+    StringValue phone = 3;
     UserModel user = 4;
 }
 
@@ -115,7 +123,7 @@ message JoinCallModel {
 
 message DisposeCallModel {
     string stateId = 1;
-    int64 instanceId = 2;
+    Int64Value instanceId = 2;
     int64 callId = 3;
 }
 
@@ -178,7 +186,6 @@ message DisposeCallRequest {
     DisposeCallModel dispose = 1;
 }
 
-
 message ServerStreamMessage {
     
     message ServerDisposeCallModel {
@@ -191,12 +198,12 @@ message ServerStreamMessage {
         message ServerCallModel {
             int64 stateId = 1;
             int64 callId = 2;
-            int64 instanceId = 3;
+            Int64Value instanceId = 3;
             CALL_STATE state = 4;
             CALL_DIRECTION direction = 5;
             bool currentDevice = 6;
             ServerAbonentModel abonent = 7;
-            int64 answerDateUTC = 8;
+            Int64Value answerDateUTC = 8;
         }
         
         repeated ServerCallModel serverCalls = 1;
