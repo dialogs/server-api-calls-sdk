@@ -119,7 +119,7 @@ message JoinCallModel {
     
     string stateId = 1;
     int32 instanceId = 2;
-    int32 callId = 3;
+    int64 callId = 3;
     string sdpId = 4;
     SdpModel sdp = 5;
     repeated IceCandidateIdModel ice = 6;
@@ -128,12 +128,12 @@ message JoinCallModel {
 message DisposeCallModel {
     string stateId = 1;
     Int32Value instanceId = 2;
-    int32 callId = 3;
+    int64 callId = 3;
 }
 
 message AckRequest {
     string stateId = 1;
-    int32 callId = 2;
+    int64 callId = 2;
 }
 
 message CreateCallRequest {
@@ -143,7 +143,7 @@ message CreateCallRequest {
 message CreateCallResponse {
     
     message SuccessModel {
-        int32 callId = 1;
+        int64 callId = 1;
         int32 instanceId = 2;
         IceSettingsModel iceSettings = 3;
     }
@@ -154,11 +154,11 @@ message CreateCallResponse {
     }
 }
 message RingingCallRequest {
-    int32 callId = 1;
+    int64 callId = 1;
 }
 
 message AnswerCallRequest {
-    int32 callId = 1;
+    int64 callId = 1;
 }
 
 message AnswerCallResponse {
@@ -201,7 +201,7 @@ message ServerStreamMessage {
 
         message ServerCallModel {
             int32 stateId = 1;
-            int32 callId = 2;
+            int64 callId = 2;
             Int32Value instanceId = 3;
             CALL_STATE state = 4;
             CALL_DIRECTION direction = 5;
