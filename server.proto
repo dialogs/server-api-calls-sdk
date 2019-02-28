@@ -207,7 +207,7 @@ message ServerStreamMessage {
             CALL_DIRECTION direction = 5;
             bool currentDevice = 6;
             ServerAbonentModel abonent = 7;
-            Int32Value answerDateUTC = 8;
+            Int64Value answerDateUTC = 8;
         }
         
         repeated ServerCallModel serverCalls = 1;
