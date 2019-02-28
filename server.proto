@@ -19,6 +19,10 @@ message Int64Value {
   int64 value = 1;
 }
 
+message Int32Value {
+  int32 value = 1;
+}
+
 message StringValue {
   string value = 1;
 }
@@ -79,7 +83,7 @@ message IceSettingsModel {
     
 message ClientAbonentModel {
     message UserModel {
-        int64 userId = 1;
+        int32 userId = 1;
         int64 accessHash = 2;
     }
     
@@ -90,7 +94,7 @@ message ClientAbonentModel {
 }
 
 message ServerAbonentModel {
-    int64 abonentId = 1;
+    int32 abonentId = 1;
     ClientAbonentModel abonent = 2;
 }
 
@@ -106,7 +110,7 @@ message JoinCallModel {
         message IceCandidateModel {
             string candidate = 1;
             string sdpMid = 2;
-            int64 sdpMLineIndex = 3;
+            int32 sdpMLineIndex = 3;
         }
         
         string id = 1;
@@ -114,8 +118,8 @@ message JoinCallModel {
     }
     
     string stateId = 1;
-    int64 instanceId = 2;
-    int64 callId = 3;
+    int32 instanceId = 2;
+    int32 callId = 3;
     string sdpId = 4;
     SdpModel sdp = 5;
     repeated IceCandidateIdModel ice = 6;
@@ -123,13 +127,13 @@ message JoinCallModel {
 
 message DisposeCallModel {
     string stateId = 1;
-    Int64Value instanceId = 2;
-    int64 callId = 3;
+    Int32Value instanceId = 2;
+    int32 callId = 3;
 }
 
 message AckRequest {
     string stateId = 1;
-    int64 callId = 2;
+    int32 callId = 2;
 }
 
 message CreateCallRequest {
@@ -139,8 +143,8 @@ message CreateCallRequest {
 message CreateCallResponse {
     
     message SuccessModel {
-        int64 callId = 1;
-        int64 instanceId = 2;
+        int32 callId = 1;
+        int32 instanceId = 2;
         IceSettingsModel iceSettings = 3;
     }
     
@@ -150,17 +154,17 @@ message CreateCallResponse {
     }
 }
 message RingingCallRequest {
-    int64 callId = 1;
+    int32 callId = 1;
 }
 
 message AnswerCallRequest {
-    int64 callId = 1;
+    int32 callId = 1;
 }
 
 message AnswerCallResponse {
     
     message SuccessModel {
-        int64 instanceId = 1;
+        int32 instanceId = 1;
         IceSettingsModel iceSettings = 2;
     }
     
@@ -196,14 +200,14 @@ message ServerStreamMessage {
     message ServerCallsModel {
 
         message ServerCallModel {
-            int64 stateId = 1;
-            int64 callId = 2;
-            Int64Value instanceId = 3;
+            int32 stateId = 1;
+            int32 callId = 2;
+            Int32Value instanceId = 3;
             CALL_STATE state = 4;
             CALL_DIRECTION direction = 5;
             bool currentDevice = 6;
             ServerAbonentModel abonent = 7;
-            Int64Value answerDateUTC = 8;
+            Int32Value answerDateUTC = 8;
         }
         
         repeated ServerCallModel serverCalls = 1;

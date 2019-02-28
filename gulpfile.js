@@ -99,7 +99,7 @@ gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
 
 gulp.task('grpc',['grpc-replace-enum'], function () {
     return gulp.src('./generated/*.ts')
-        .pipe (gulpReplace ('(number|$protobuf.Long)', 'number'))
+        .pipe (gulpReplace ('(number|$protobuf.Long)', 'string'))
         .pipe (gulp.dest('./generated/'));
 });
 
