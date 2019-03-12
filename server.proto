@@ -39,6 +39,7 @@ enum DISPOSE_REASON {
     PICKED_UP = 8;
     CALL_DOES_NOT_EXISTS = 9;
     REJECTED = 10;
+    INVALID_IP_RANGE = 11;
 }
 
 enum CALL_DIRECTION {
@@ -211,6 +212,7 @@ message ServerStreamMessage {
         }
         
         repeated ServerCallModel serverCalls = 1;
+        DISPOSE_REASON callDisallowedReason = 2;
     }
     
     oneof event {
