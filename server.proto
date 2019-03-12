@@ -214,10 +214,10 @@ message ServerStreamMessage {
         repeated ServerCallModel serverCalls = 1;
     }
     
-    message DisallowCallsModel {
-        oneof reason {
-            DISPOSE_REASON disallowedReason = 1;
-            Empty allowed = 2;
+    message PermissionsModel {
+        oneof calls {
+            DISPOSE_REASON disallow = 1;
+            Empty allow = 2;
         }
     }
     
@@ -225,6 +225,6 @@ message ServerStreamMessage {
         JoinCallModel join = 1;
         ServerDisposeCallModel dispose = 2;
         ServerCallsModel serverCalls = 3;
-        DisallowCallsModel disallow = 4;
+        PermissionsModel permissions = 4;
     }
 }
