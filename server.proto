@@ -214,10 +214,14 @@ message ServerStreamMessage {
         repeated ServerCallModel serverCalls = 1;
     }
     
+    message DisallowCallsModel {
+        DISPOSE_REASON disallowedReason = 1;
+    }
+    
     oneof event {
         JoinCallModel join = 1;
         ServerDisposeCallModel dispose = 2;
         ServerCallsModel serverCalls = 3;
-        DISPOSE_REASON callDisallowedReason = 4;
+        DisallowCallsModel disallow = 4;
     }
 }
