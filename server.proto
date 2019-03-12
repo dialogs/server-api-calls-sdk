@@ -215,7 +215,10 @@ message ServerStreamMessage {
     }
     
     message DisallowCallsModel {
-        DISPOSE_REASON disallowedReason = 1;
+        oneof reason {
+            DISPOSE_REASON disallowedReason = 1;
+            Empty allowed = 2;
+        }
     }
     
     oneof event {
