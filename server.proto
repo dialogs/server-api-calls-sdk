@@ -212,12 +212,12 @@ message ServerStreamMessage {
         }
         
         repeated ServerCallModel serverCalls = 1;
-        DISPOSE_REASON callDisallowedReason = 2;
     }
     
     oneof event {
         JoinCallModel join = 1;
         ServerDisposeCallModel dispose = 2;
         ServerCallsModel serverCalls = 3;
+        DISPOSE_REASON callDisallowedReason = 4;
     }
 }
