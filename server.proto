@@ -209,6 +209,7 @@ message ServerStreamMessage {
             bool currentDevice = 6;
             ServerAbonentModel abonent = 7;
             Int64Value answerDateUTC = 8;
+            bool video = 9;
         }
         
         repeated ServerCallModel serverCalls = 1;
