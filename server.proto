@@ -3,13 +3,40 @@ syntax = "proto3";
 package im.dlg.sdk.calls;
 option java_package = "im.dlg.sdk.calls.server.api";
 
+/**
+ * Сервис P2P звонков
+ */
 service CallService {
+    /**
+     * Подключение с установкой стрима, для передачи на клиента 
+     * сообщений от сервера
+     */
     rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
+    /**
+     * Создание звонка выполняется в два этапа: createCall создаст структуру на 
+     * сервере и вернет callId, 
+     * которая будет ждать joinCall запрос c callId
+     */
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
+    /**
+     * Pickup или ответ на входящий звонок 
+     */
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
+    /**
+     * Сообщение серверу, что клиент увидел звонок и начал звонить
+     */
     rpc ringingCall (RingingCallRequest) returns (Empty) {};
+    /**
+     * Передача на сервер SDP + ICE. Звонок стартует как последовательность из createCall и последующими joinCall
+     */
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
+    /**
+     * Завершение звонка
+     */
     rpc disposeCall (DisposeCallRequest) returns (Empty) {};
+    /**
+     * Подтверждение получения сообщения от сервера
+     */
     rpc ack (AckRequest) returns (Empty) {};
 }
 
