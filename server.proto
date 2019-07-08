@@ -54,6 +54,9 @@ message StringValue {
   string value = 1;
 }
 
+/**
+ Причина заверщения звонка
+ */
 enum DISPOSE_REASON {
     DISPOSE_REASON_UNKNOWN = 0;
     SERVER_ERROR = 1;
@@ -69,25 +72,42 @@ enum DISPOSE_REASON {
     INVALID_IP_RANGE = 11;
 }
 
+/**
+ Направление звонка
+ */
 enum CALL_DIRECTION {
     CALL_DIRECTION_UNKNOWN = 0;
     INBOUND = 1;
     OUTBOUND = 2;
 }
 
+/**
+ Статус звонка
+ */
 enum CALL_STATE {
     CALL_STATE_UNKNOWN = 0;
+    // Пытаюсь установить соединение с абонентом
     TRIYNG = 1;
+    // Пока не используется
     PROGRESS = 2;
+    // Абонент увидел звонок
     RINGING = 3;
+    // Абонент ответил (медийка еще какое-то время будет подниматься)
     TALKING = 4;
+    // Разговор завершен
     FINISHED = 5;
 }
 
+/**
+ Настройки ICE - взаимодействия
+ */
 enum ICE_SETTINGS {
     ICE_SETTINGS_UNKNOWN = 0;
+    // только через TURN
     RELAY = 1;
+    // через TURN и напрямую
     ALL = 2;
+    // не использовать обмен ICE
     NONE = 3;
 }
 
@@ -97,6 +117,9 @@ enum PEER_TYPE {
     GROUP = 2;
 }
 
+/**
+ Настройки ICE от сервера
+ */
 message IceSettingsModel {
 
     message IceServerModel {
@@ -108,7 +131,10 @@ message IceSettingsModel {
     ICE_SETTINGS settings = 1;
     repeated IceServerModel iceServers = 2;
 }
-    
+
+/**
+ Структура абонента, отправляемая клиентом
+ */
 message ClientAbonentModel {
     message UserModel {
         int32 userId = 1;
@@ -121,6 +147,9 @@ message ClientAbonentModel {
     UserModel user = 4;
 }
 
+/**
+ Структура абонента, получаемая с сервера
+ */
 message ServerAbonentModel {
     int32 abonentId = 1;
     ClientAbonentModel abonent = 2;
@@ -131,6 +160,9 @@ message SdpModel {
     string sdp = 2;
 }
 
+/**
+ Структура обмена SDP и ICE
+ */
 message JoinCallModel {
 
     message IceCandidateIdModel {
