@@ -111,7 +111,7 @@ gulp.task('grpc-copy-proto-to-npm', function () {
 
 gulp.task('generate-package.json', function (cb) {
     fs.writeFileSync("npm/package.json", JSON.stringify({
-        name : "@dlghq/server-api-calls-sdk",
+        name : packageJson.name,
         version : "VERSION",
         main: "index.js"
     }, null, 4));

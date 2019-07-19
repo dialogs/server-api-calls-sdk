@@ -1,46 +1,24 @@
 syntax = "proto3";
 
-package im.dlg.sdk.calls;
+package im.dlg.sdk.calls.client;
 option java_package = "im.dlg.sdk.calls.server.api";
 
-/**
- * Сервис P2P звонков
- */
 service CallService {
-    /**
-     * Подключение с установкой стрима, для передачи на клиента 
-     * сообщений от сервера
-     */
-    rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
-    /**
-     * Создание звонка выполняется в два этапа: createCall создаст структуру на 
-     * сервере и вернет callId, 
-     * которая будет ждать joinCall запрос c callId
-     */
+    rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
+    rpc getSeq (GetSeqRequest) returns (GetSeqResponse) {};
+    rpc generateCallId (GenerateCallIdRequest) returns (GenerateCallIdResponse) {};
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
-    /**
-     * Pickup или ответ на входящий звонок 
-     */
+    rpc ringingCall (RingingCallRequest) returns (RingingCallResponse) {};
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
-    /**
-     * Сообщение серверу, что клиент увидел звонок и начал звонить
-     */
-    rpc ringingCall (RingingCallRequest) returns (Empty) {};
-    /**
-     * Передача на сервер SDP + ICE. Звонок стартует как последовательность из createCall и последующими joinCall
-     */
+    rpc disposeCall (DisposeCallRequest) returns (DisposeCallResponse) {};
+    rpc lockCall (LockCallRequest) returns (LockCallResponse) {};
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
-    /**
-     * Завершение звонка
-     */
-    rpc disposeCall (DisposeCallRequest) returns (Empty) {};
-    /**
-     * Подтверждение получения сообщения от сервера
-     */
-    rpc ack (AckRequest) returns (Empty) {};
+    rpc ice (IceRequest) returns (IceResponse) {};
+    rpc ack (AckRequest) returns (AckResponse) {};
 }
 
-message Empty {}
+message Empty {
+}
 
 message Int64Value {
   int64 value = 1;
@@ -50,76 +28,58 @@ message Int32Value {
   int32 value = 1;
 }
 
-message StringValue {
-  string value = 1;
-}
-
-/**
- Причина заверщения звонка
- */
-enum DISPOSE_REASON {
-    DISPOSE_REASON_UNKNOWN = 0;
-    SERVER_ERROR = 1;
-    NORMAL = 2;
-    CALLEE_NOT_FOUND = 3;
-    CALLER_DISABLED = 4;
-    CALLEE_DISABLED = 5;
-    NO_ANSWER = 6;
-    BUSY = 7;
-    PICKED_UP = 8;
-    CALL_DOES_NOT_EXISTS = 9;
-    REJECTED = 10;
-    INVALID_IP_RANGE = 11;
-}
-
-/**
- Направление звонка
- */
 enum CALL_DIRECTION {
     CALL_DIRECTION_UNKNOWN = 0;
     INBOUND = 1;
     OUTBOUND = 2;
 }
 
-/**
- Статус звонка
- */
 enum CALL_STATE {
     CALL_STATE_UNKNOWN = 0;
-    // Пытаюсь установить соединение с абонентом
     TRIYNG = 1;
-    // Пока не используется
     PROGRESS = 2;
-    // Абонент увидел звонок
     RINGING = 3;
-    // Абонент ответил (медийка еще какое-то время будет подниматься)
     TALKING = 4;
-    // Разговор завершен
     FINISHED = 5;
 }
 
-/**
- Настройки ICE - взаимодействия
- */
+enum DISPOSE_REASON {
+    DISPOSE_REASON_UNKNOWN = 0;
+    ERROR = 1;
+    CALL_DOES_NOT_EXISTS = 2;
+    PICKED_UP = 3;
+    NORMAL = 4;
+    NOT_FOUND = 5;
+    NO_ANSWER = 6;
+    BUSY = 7;
+    REJECTED = 8;
+}
+
+
+enum HANGUP_REASON {
+    HANGUP_REASON_UNKNOWN = 0;
+    ERROR = 1;
+    NORMAL = 2;
+    BUSY = 3;
+    REJECTED = 4;
+}
+
+message SeqModel {
+    int32 a = 1;
+    int32 b = 2;
+}
+
+message SeqValue {
+    SeqModel value = 1;
+}
+
 enum ICE_SETTINGS {
     ICE_SETTINGS_UNKNOWN = 0;
-    // только через TURN
-    RELAY = 1;
-    // через TURN и напрямую
-    ALL = 2;
-    // не использовать обмен ICE
-    NONE = 3;
+    NONE = 1;
+    RELAY = 2;
+    ALL = 3;
 }
 
-enum PEER_TYPE {
-    PEER_TYPE_UNKNOWN = 0;
-    USER = 1;
-    GROUP = 2;
-}
-
-/**
- Настройки ICE от сервера
- */
 message IceSettingsModel {
 
     message IceServerModel {
@@ -131,160 +91,170 @@ message IceSettingsModel {
     ICE_SETTINGS settings = 1;
     repeated IceServerModel iceServers = 2;
 }
-
-/**
- Структура абонента, отправляемая клиентом
- */
-message ClientAbonentModel {
-    message UserModel {
-        int32 userId = 1;
-        int64 accessHash = 2;
-    }
     
-    StringValue name = 1;
-    StringValue nick = 2;
-    StringValue phone = 3;
-    UserModel user = 4;
+message ConnectToCallSuccessModel {
+    CallSettingsModel settings = 1;
 }
 
-/**
- Структура абонента, получаемая с сервера
- */
-message ServerAbonentModel {
-    int32 abonentId = 1;
-    ClientAbonentModel abonent = 2;
+message CallSettingsModel {
+    IceSettingsModel ice = 1;
 }
 
 message SdpModel {
-    string type = 1;
-    string sdp = 2;
+    string sdp = 1;
+    string type = 2;
 }
 
-/**
- Структура обмена SDP и ICE
- */
-message JoinCallModel {
-
-    message IceCandidateIdModel {
-    
-        message IceCandidateModel {
-            string candidate = 1;
-            string sdpMid = 2;
-            int32 sdpMLineIndex = 3;
-        }
-        
-        string id = 1;
-        IceCandidateModel iceCandidate = 2;
-    }
-    
-    string stateId = 1;
-    int32 instanceId = 2;
-    int64 callId = 3;
-    string sdpId = 4;
-    SdpModel sdp = 5;
-    repeated IceCandidateIdModel ice = 6;
+message GetSeqRequest {
 }
 
-message DisposeCallModel {
-    string stateId = 1;
-    Int32Value instanceId = 2;
-    int64 callId = 3;
+message GetSeqResponse {
+    SeqModel seq = 1;
 }
 
-message AckRequest {
-    string stateId = 1;
-    int64 callId = 2;
+message GenerateCallIdRequest {
+}
+
+message GenerateCallIdResponse {
+    string callId = 1;
 }
 
 message CreateCallRequest {
-    ClientAbonentModel abonent = 1;
+    string callId = 1;
+    SeqModel instanceSeq = 2;
+    map<string, string> parameters = 3;
 }
 
 message CreateCallResponse {
     
-    message SuccessModel {
-        int64 callId = 1;
-        int32 instanceId = 2;
-        IceSettingsModel iceSettings = 3;
+    message CreateCallSuccessResponseModel {
+        map<string, string> parameters = 1;
+        ConnectToCallSuccessModel connect = 2;
+    }
+    
+    message CreateCallErrorResponseModel {
+        map<string, string> parameters = 1;
     }
     
     oneof result {
-        SuccessModel success = 1;
-        DISPOSE_REASON disposeReason = 2;
+        CreateCallErrorResponseModel error = 1;
+        CreateCallSuccessResponseModel success = 2;
     }
 }
+
 message RingingCallRequest {
-    int64 callId = 1;
+    string callId = 1;
+}
+
+message RingingCallResponse {
 }
 
 message AnswerCallRequest {
-    int64 callId = 1;
+    string callId = 1;
+    SeqModel instanceSeq = 2;
 }
 
 message AnswerCallResponse {
     
-    message SuccessModel {
-        int32 instanceId = 1;
-        IceSettingsModel iceSettings = 2;
-    }
-    
     oneof result {
-        SuccessModel success = 1; 
-        DISPOSE_REASON disposeReason = 2;
-    }
-}
-
-message JoinCallRequest {
-    JoinCallModel join = 1;
-}
-
-message JoinCallResponse {
-    
-    oneof result {
-        Empty success = 1;
-        DISPOSE_REASON disposeReason = 2;
+        Empty callDoesNotExists = 1;
+        Empty callAlreadyPickedUp = 2;
+        ConnectToCallSuccessModel success = 3;
     }
 }
 
 message DisposeCallRequest {
-    DisposeCallModel dispose = 1;
+    string callId = 1;
+    SeqModel instanceSeq = 2;
+    HANGUP_REASON reason = 3;
+    map<string, string> parameters = 4;
 }
 
-message ServerStreamMessage {
-    
-    message ServerDisposeCallModel {
-        DISPOSE_REASON disposeReason = 1;
-        DisposeCallModel dispose = 2;
+message DisposeCallResponse {
+}
+
+message LockCallRequest {
+    string callId = 1;
+    SeqModel instanceSeq = 2;
+    SeqModel sdpSeq = 3;
+}
+
+message LockCallResponse {
+    bool locked = 1;
+}
+
+message JoinCallRequest {
+    string callId = 1;
+    SeqModel instanceSeq = 2;
+    SeqModel peerConnectionSeq = 3;
+    SeqModel sdpSeq = 4;
+    SdpModel sdp = 5;
+}
+
+message JoinCallResponse {
+}
+
+message IceRequest {
+
+    message IceCandidateModel {
+        string candidate = 1;
+        string sdpMid = 2;
+        int32 sdpMLineIndex = 3;
     }
     
-    message ServerCallsModel {
+    string callId = 1;
+    SeqModel instanceSeq = 2;
+    SeqModel peerConnectionSeq = 3;
+    SeqModel iceSeq = 4;
+    IceCandidateModel ice = 5;
+}
 
+message IceResponse {
+}
+
+message AckRequest {
+    SeqModel seq = 1;
+}
+
+message AckResponse {
+}
+
+message ConnectRequest {
+}
+
+message ConnectResponse {
+    
+    message ServerCallList {
+        
         message ServerCallModel {
             int32 stateId = 1;
-            int64 callId = 2;
-            Int32Value instanceId = 3;
+            string callId = 2;
+            SeqValue instanceSeq = 3;
             CALL_STATE state = 4;
             CALL_DIRECTION direction = 5;
             bool currentDevice = 6;
-            ServerAbonentModel abonent = 7;
-            Int64Value answerDateUTC = 8;
-            bool video = 9;
+            Int64Value answerDateUTC = 7;
+            bool video = 8;
+            map<string, string> parameters = 9;
         }
         
-        repeated ServerCallModel serverCalls = 1;
+        repeated ServerCallModel calls = 2;
     }
     
-    message PermissionsModel {
-        oneof calls {
-            DISPOSE_REASON disallow = 1;
-            Empty allow = 2;
-        }
+    message DisposeCallModel {
+        string callId = 1;
+        SeqModel instanceSeq = 2;
+        DISPOSE_REASON reason = 3;
+        map<string, string> parameters = 4;
     }
     
-    oneof event {
-        JoinCallModel join = 1;
-        ServerDisposeCallModel dispose = 2;
-        ServerCallsModel serverCalls = 3;
-        PermissionsModel permissions = 4;
+    SeqModel seq = 1;
+    
+    oneof data {
+        ServerCallList calls = 2;
+        DisposeCallModel dispose = 3;
+        JoinCallRequest join = 4;
+        IceRequest ice = 5;
     }
 }
+
