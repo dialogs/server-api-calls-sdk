@@ -84,7 +84,7 @@ gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
         .pipe(gulpReplace('DISPOSE_REASON_BUSY = 7', 'DISPOSE_REASON_BUSY = "DISPOSE_REASON_BUSY"'))
         .pipe(gulpReplace('DISPOSE_REASON_REJECTED = 8', 'DISPOSE_REASON_REJECTED = "DISPOSE_REASON_REJECTED"'))
 
-        .pipe(gulpReplace('HANGUP_REASON_ERROR = 1', 'DISPOSE_REASON_ERROR = "DISPOSE_REASON_ERROR"'))
+        .pipe(gulpReplace('HANGUP_REASON_ERROR = 1', 'HANGUP_REASON_ERROR = "HANGUP_REASON_ERROR"'))
         .pipe(gulpReplace('HANGUP_REASON_NORMAL = 2', 'HANGUP_REASON_NORMAL = "HANGUP_REASON_NORMAL"'))
         .pipe(gulpReplace('HANGUP_REASON_BUSY = 3', 'HANGUP_REASON_BUSY = "HANGUP_REASON_BUSY"'))
         .pipe(gulpReplace('HANGUP_REASON_REJECTED = 4', 'HANGUP_REASON_REJECTED = "HANGUP_REASON_REJECTED"'))
