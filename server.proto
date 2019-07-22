@@ -79,25 +79,22 @@ enum ICE_SETTINGS {
     ICE_SETTINGS_RELAY = 2;
     ICE_SETTINGS_ALL = 3;
 }
-
-message IceSettingsModel {
-
-    message IceServerModel {
-        string username = 1;
-        string password = 2;
-        repeated string urls = 3;
-    }    
-    
-    ICE_SETTINGS settings = 1;
-    repeated IceServerModel iceServers = 2;
-}
     
 message ConnectToCallSuccessModel {
-    CallSettingsModel settings = 1;
-}
 
-message CallSettingsModel {
-    IceSettingsModel ice = 1;
+    message IceSettingsModel {
+
+        message IceServerModel {
+            string username = 1;
+            string password = 2;
+            repeated string urls = 3;
+        }    
+
+        ICE_SETTINGS settings = 1;
+        repeated IceServerModel iceServers = 2;
+    }
+    
+    IceSettingsModel iceSettings = 1;
 }
 
 message SdpModel {
@@ -127,18 +124,17 @@ message CreateCallRequest {
 
 message CreateCallResponse {
     
-    message CreateCallSuccessResponseModel {
-        map<string, string> parameters = 1;
-        ConnectToCallSuccessModel connect = 2;
+    message CreateCallResponseSuccessModel {
+        ConnectToCallSuccessModel connect = 1;
     }
     
-    message CreateCallErrorResponseModel {
+    message CreateCallResponseErrorModel {
         map<string, string> parameters = 1;
     }
     
     oneof result {
-        CreateCallErrorResponseModel error = 1;
-        CreateCallSuccessResponseModel success = 2;
+        CreateCallResponseErrorModel error = 1;
+        CreateCallResponseSuccessModel success = 2;
     }
 }
 
@@ -156,10 +152,14 @@ message AnswerCallRequest {
 
 message AnswerCallResponse {
     
+    message AnswerCallResponseSuccessModel {
+        ConnectToCallSuccessModel connect = 1;
+    }
+    
     oneof result {
         Empty callDoesNotExists = 1;
         Empty callAlreadyPickedUp = 2;
-        ConnectToCallSuccessModel success = 3;
+        AnswerCallResponseSuccessModel success = 3;
     }
 }
 
