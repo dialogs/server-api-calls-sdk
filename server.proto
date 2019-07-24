@@ -205,8 +205,9 @@ message IceRequest {
     string callId = 1;
     SeqModel instanceSeq = 2;
     SeqModel peerConnectionSeq = 3;
-    SeqModel iceSeq = 4;
-    IceCandidateModel ice = 5;
+    SeqModel sdpSeq = 4;
+    SeqModel iceSeq = 5;
+    IceCandidateModel ice = 6;
 }
 
 message IceResponse {
