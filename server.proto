@@ -5,8 +5,8 @@ option java_package = "im.dlg.sdk.calls.client.p2p.api";
 
 service CallService {
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
-    rpc getSeq (GetSeqRequest) returns (GetSeqResponse) {};
     rpc generateCallId (GenerateCallIdRequest) returns (GenerateCallIdResponse) {};
+    rpc generateInstanceId (GenerateInstanceIdRequest) returns (GenerateInstanceIdResponse) {};
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
     rpc ringingCall (RingingCallRequest) returns (RingingCallResponse) {};
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
@@ -102,13 +102,6 @@ message SdpModel {
     string type = 2;
 }
 
-message GetSeqRequest {
-}
-
-message GetSeqResponse {
-    SeqModel seq = 1;
-}
-
 message GenerateCallIdRequest {
 }
 
@@ -116,10 +109,20 @@ message GenerateCallIdResponse {
     string callId = 1;
 }
 
+message GenerateInstanceIdRequest {
+    string callId = 1;
+}
+
+message GenerateInstanceIdResponse {
+    oneof result {
+        Empty callDoesNotExists = 1;
+        int32 instanceId = 2;
+    }
+}
+
 message CreateCallRequest {
     string callId = 1;
-    SeqModel instanceSeq = 2;
-    map<string, string> parameters = 3;
+    map<string, string> parameters = 2;
 }
 
 message CreateCallResponse {
@@ -147,7 +150,7 @@ message RingingCallResponse {
 
 message AnswerCallRequest {
     string callId = 1;
-    SeqModel instanceSeq = 2;
+    int32 instanceId = 2;
 }
 
 message AnswerCallResponse {
@@ -165,7 +168,7 @@ message AnswerCallResponse {
 
 message DisposeCallRequest {
     string callId = 1;
-    SeqModel instanceSeq = 2;
+    int32 instanceId = 2;
     HANGUP_REASON reason = 3;
     map<string, string> parameters = 4;
 }
@@ -175,8 +178,9 @@ message DisposeCallResponse {
 
 message LockCallRequest {
     string callId = 1;
-    SeqModel instanceSeq = 2;
-    SeqModel sdpSeq = 3;
+    int32 instanceId = 2;
+    int32 peerConnectionId = 3;
+    int32 sdpId = 4;
 }
 
 message LockCallResponse {
@@ -185,9 +189,9 @@ message LockCallResponse {
 
 message JoinCallRequest {
     string callId = 1;
-    SeqModel instanceSeq = 2;
-    SeqModel peerConnectionSeq = 3;
-    SeqModel sdpSeq = 4;
+    int32 instanceId = 2;
+    int32 peerConnectionId = 3;
+    int32 sdpId = 4;
     SdpModel sdp = 5;
 }
 
@@ -203,10 +207,10 @@ message IceRequest {
     }
     
     string callId = 1;
-    SeqModel instanceSeq = 2;
-    SeqModel peerConnectionSeq = 3;
-    SeqModel sdpSeq = 4;
-    SeqModel iceSeq = 5;
+    int32 instanceId = 2;
+    int32 peerConnectionId = 3;
+    int32 sdpId = 4;
+    int32 iceId = 5;
     string sdpType = 6;
     IceCandidateModel ice = 7;
 }
@@ -231,7 +235,7 @@ message ConnectResponse {
         message ServerCallModel {
             int32 stateId = 1;
             string callId = 2;
-            SeqValue instanceSeq = 3;
+            Int32Value instanceId = 3;
             CALL_STATE state = 4;
             CALL_DIRECTION direction = 5;
             bool currentDevice = 6;
@@ -245,7 +249,7 @@ message ConnectResponse {
     
     message DisposeCallModel {
         string callId = 1;
-        SeqModel instanceSeq = 2;
+        int32 instanceId = 2;
         DISPOSE_REASON reason = 3;
         map<string, string> parameters = 4;
     }
