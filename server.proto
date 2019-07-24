@@ -6,7 +6,7 @@ option java_package = "im.dlg.sdk.calls.client.p2p.api";
 service CallService {
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
     rpc generateCallId (GenerateCallIdRequest) returns (GenerateCallIdResponse) {};
-    rpc generateInstanceId (GenerateInstanceIdRequest) returns (GenerateInstanceIdResponse) {};
+    rpc generateId (GenerateIdRequest) returns (GenerateIdResponse) {};
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
     rpc ringingCall (RingingCallRequest) returns (RingingCallResponse) {};
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
@@ -109,14 +109,14 @@ message GenerateCallIdResponse {
     string callId = 1;
 }
 
-message GenerateInstanceIdRequest {
+message GenerateIdRequest {
     string callId = 1;
 }
 
-message GenerateInstanceIdResponse {
+message GenerateIdResponse {
     oneof result {
         Empty callDoesNotExists = 1;
-        int32 instanceId = 2;
+        int32 id = 2;
     }
 }
 
