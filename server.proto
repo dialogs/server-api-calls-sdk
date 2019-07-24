@@ -207,7 +207,8 @@ message IceRequest {
     SeqModel peerConnectionSeq = 3;
     SeqModel sdpSeq = 4;
     SeqModel iceSeq = 5;
-    IceCandidateModel ice = 6;
+    string sdpType = 6;
+    IceCandidateModel ice = 7;
 }
 
 message IceResponse {
