@@ -168,7 +168,7 @@ message AnswerCallResponse {
 
 message DisposeCallRequest {
     string callId = 1;
-    int32 instanceId = 2;
+    Int32Value instanceId = 2;
     HANGUP_REASON reason = 3;
     map<string, string> parameters = 4;
 }
@@ -249,7 +249,7 @@ message ConnectResponse {
     
     message DisposeCallModel {
         string callId = 1;
-        int32 instanceId = 2;
+        Int32Value instanceId = 2;
         DISPOSE_REASON reason = 3;
         map<string, string> parameters = 4;
     }
