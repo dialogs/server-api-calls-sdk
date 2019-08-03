@@ -1,71 +1,45 @@
+const gulp = require('gulp');
+const { series, parallel } = require('gulp');
+const gulpClean = require('gulp-clean');
+const gulpReplace = require('gulp-replace');
+
 const fs = require ('fs');
 const rx = require ("rxjs/Rx");
 const rxjsGrpc = require('rxjs-grpc/js/cli');
 
-const gulp = require('gulp');
-const gulpClean = require('gulp-clean');
-const gulpSequence = require('gulp-sequence');
-const gulpReplace = require('gulp-replace');
-
 const packageJson = JSON.parse(fs.readFileSync("package.json"));
 
-gulp.task('clean',['createDirs'], function () {
-    return gulp.src(['npm/*', 'generated/*'], {read: false})
-        .pipe(gulpClean());
-});
+const clean = () => gulp.src(['npm/*', 'generated/*'], {read: false}).pipe(gulpClean());
 
-gulp.task ('createDirs', function (cb) {
-    function createDir (dir) {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
+const createDir = (dir) => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
     }
+};
+
+const createDirs = cb => {
     
     createDir ('generated');
     createDir ('npm');
     
-    return cb ();
-});
+    cb ();
+};
 
-// =============================================================================
-// GRPC
-// =============================================================================
+const copyProtoToGenerated = () => gulp.src('./*.proto')
+    .pipe (gulp.dest("./npm"))
+    .pipe (gulpReplace (/package.*/, 'package api;'))
+    .pipe (gulp.dest('./generated/'));
 
-gulp.task('grpc-copy-proto-to-generated', function () {
-    return gulp.src('./*.proto')
-            .pipe (gulp.dest('./generated/'));
-});
+const grpc = () => rxjsGrpc.main(['-o', `./generated/index.ts`, `./generated/server.proto`]);
 
-gulp.task('grpc-remove-package-from-proto',['grpc-copy-proto-to-generated'], function () {
-    return gulp.src('./generated/*.proto')
-            .pipe (gulpReplace (/package.*/, 'package api;'))
-            .pipe (gulp.dest('./generated/'));
-});
-
-gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
-    fs.readdir ("generated", function (error, files ) {
-        if (error) {
-            cb (error);
-        }
-        else {
-            rx.Observable.from (files)
-                .filter (file => file.toLowerCase().endsWith (".proto"))
-                .map (file => file.replace(".proto",""))
-                .flatMap (file => rx.Observable.fromPromise (rxjsGrpc.main(['-o', `./generated/index.ts`, `./generated/${file}.proto`])))
-                .toArray ()
-                .subscribe (()=> cb (), cb);
-        }
-    });
-});
-
-gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
-    return gulp
+const grpcReplace = () => gulp
         .src(['./generated/*.ts'])
         
-        .pipe(gulpReplace("import * as $protobuf from 'protobufjs';", ''))
-        .pipe(gulpReplace("import { Observable } from 'rxjs/Observable';", "import { Observable } from 'rxjs/Rx';"))
+        .pipe(gulpReplace (/.*grpc.*/g, ''))
+        .pipe(gulpReplace (/.*Observable.*/g, ''))
 
-        
+        .pipe(gulpReplace ("number|Long|null", 'string|null'))
+
         .pipe(gulpReplace('CALL_DIRECTION_UNKNOWN = 0', 'CALL_DIRECTION_UNKNOWN = "CALL_DIRECTION_UNKNOWN"'))
         .pipe(gulpReplace('CALL_DIRECTION_INBOUND = 1', 'CALL_DIRECTION_INBOUND = "CALL_DIRECTION_INBOUND"'))
         .pipe(gulpReplace('CALL_DIRECTION_OUTBOUND = 2', 'CALL_DIRECTION_OUTBOUND = "CALL_DIRECTION_OUTBOUND"'))
@@ -98,21 +72,9 @@ gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
         .pipe(gulpReplace('ICE_SETTINGS_RELAY = 2', 'ICE_SETTINGS_RELAY = "ICE_SETTINGS_RELAY"'))
         .pipe(gulpReplace('ICE_SETTINGS_ALL = 3', 'ICE_SETTINGS_ALL = "ICE_SETTINGS_ALL"'))
    
-        .pipe(gulp.dest('./generated/'));    
-});
+        .pipe(gulp.dest('./generated/'));
 
-gulp.task('grpc',['grpc-replace-enum'], function () {
-    return gulp.src('./generated/*.ts')
-        .pipe (gulpReplace ('(number|$protobuf.Long)', 'string'))
-        .pipe (gulp.dest('./generated/'));
-});
-
-gulp.task('grpc-copy-proto-to-npm', function () {
-    return gulp.src('./server.proto')
-            .pipe(gulp.dest("./npm"));
-});
-
-gulp.task('generate-package.json', function (cb) {
+const generatePackageJson = cb => {
     fs.writeFileSync("npm/package.json", JSON.stringify({
         name : packageJson.name,
         version : "VERSION",
@@ -120,16 +82,18 @@ gulp.task('generate-package.json', function (cb) {
     }, null, 4));
     
     cb ();
-});
+};
 
-// =============================================================================
-// Build
-// =============================================================================
-
-gulp.task('build',['grpc-copy-proto-to-npm','grpc','generate-package.json']);
-
-// =============================================================================
-// Default
-// =============================================================================
-
-gulp.task('default', gulpSequence('clean','createDirs','build'));
+exports.default = series (
+    clean,
+    createDirs,
+    parallel (
+        //copyProtoToNpm,
+        generatePackageJson,
+        series (
+            copyProtoToGenerated,
+            grpc,
+            grpcReplace
+        )
+    )
+);
