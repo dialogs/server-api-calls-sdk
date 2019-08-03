@@ -1,21 +1,29 @@
 const gulp = require('gulp');
-const { series, parallel } = require('gulp');
 const gulpClean = require('gulp-clean');
 const gulpReplace = require('gulp-replace');
+const { series, parallel } = require('gulp');
 
 const fs = require ('fs');
 const rx = require ("rxjs/Rx");
 const rxjsGrpc = require('rxjs-grpc/js/cli');
+const exec = require('child_process').exec;
 
 const packageJson = JSON.parse(fs.readFileSync("package.json"));
 
-const clean = () => gulp.src(['npm/*', 'generated/*'], {read: false}).pipe(gulpClean());
+const execute = (cb, command) => exec(command, function (err, stdout, stderr) {
+    console.log(stdout);
+    console.error(stderr);
+
+    cb(err);
+});
 
 const createDir = (dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
     }
 };
+
+const clean = () => gulp.src(['npm/*', 'generated/*'], {read: false}).pipe(gulpClean());
 
 const createDirs = cb => {
     
@@ -25,7 +33,7 @@ const createDirs = cb => {
     cb ();
 };
 
-const copyProtoToGenerated = () => gulp.src('./*.proto')
+const grpcCopyProto = () => gulp.src('./*.proto')
     .pipe (gulp.dest("./npm"))
     .pipe (gulpReplace (/package.*/, 'package api;'))
     .pipe (gulp.dest('./generated/'));
@@ -39,6 +47,8 @@ const grpcReplace = () => gulp
         .pipe(gulpReplace (/.*Observable.*/g, ''))
 
         .pipe(gulpReplace ("number|Long|null", 'string|null'))
+        .pipe(gulpReplace ("settings?: (api.CE_SETTINGS|null);", 'settings?: (api.ICE_SETTINGS|null);'))
+        
 
         .pipe(gulpReplace('CALL_DIRECTION_UNKNOWN = 0', 'CALL_DIRECTION_UNKNOWN = "CALL_DIRECTION_UNKNOWN"'))
         .pipe(gulpReplace('CALL_DIRECTION_INBOUND = 1', 'CALL_DIRECTION_INBOUND = "CALL_DIRECTION_INBOUND"'))
@@ -84,16 +94,18 @@ const generatePackageJson = cb => {
     cb ();
 };
 
+const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json');
+
 exports.default = series (
     clean,
     createDirs,
     parallel (
-        //copyProtoToNpm,
         generatePackageJson,
         series (
-            copyProtoToGenerated,
+            grpcCopyProto,
             grpc,
-            grpcReplace
+            grpcReplace,
+            compileTs
         )
     )
 );

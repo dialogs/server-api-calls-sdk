@@ -77,11 +77,11 @@ message SeqValue {
     SeqModel value = 1;
 }
 
-enum LICE_SETTINGS {
-    LICE_SETTINGS_UNKNOWN = 0;
-    LICE_SETTINGS_NONE = 1;
-    LICE_SETTINGS_RELAY = 2;
-    LICE_SETTINGS_ALL = 3;
+enum ICE_SETTINGS {
+    ICE_SETTINGS_UNKNOWN = 0;
+    ICE_SETTINGS_NONE = 1;
+    ICE_SETTINGS_RELAY = 2;
+    ICE_SETTINGS_ALL = 3;
 }
     
 message ConnectToCallSuccessModel {
@@ -94,7 +94,7 @@ message ConnectToCallSuccessModel {
             repeated string urls = 3;
         }    
 
-        LICE_SETTINGS settings = 1;
+        ICE_SETTINGS settings = 1;
         repeated IceServerModel iceServers = 2;
     }
     
