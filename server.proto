@@ -119,9 +119,18 @@ message GenerateIdRequest {
 }
 
 message GenerateIdResponse {
+    
+    message GenerateIdResponseSuccessModel {
+        int32 id = 1;
+    }
+    
+    message GenerateIdResponseErrorModel {
+        DISPOSE_REASON reason = 1;
+    }
+    
     oneof result {
-        Empty callDoesNotExists = 1;
-        int32 id = 2;
+        GenerateIdResponseErrorModel error = 1;
+        GenerateIdResponseSuccessModel success = 2;
     }
 }
 
