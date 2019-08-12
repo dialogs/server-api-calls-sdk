@@ -205,19 +205,24 @@ message JoinCallResponse {
 
 message IceRequest {
 
-    message IceCandidateModel {
-        string candidate = 1;
-        string sdpMid = 2;
-        int32 sdpMLineIndex = 3;
+    message IceCandidateItemModel {
+
+        message IceCandidateModel {
+            string candidate = 1;
+            string sdpMid = 2;
+            int32 sdpMLineIndex = 3;
+        }
+        
+        int32 peerConnectionId = 3;
+        int32 sdpId = 4;
+        int32 iceId = 5;
+        string sdpType = 6;
+        IceCandidateModel ice = 7;
     }
     
     string callId = 1;
     int32 instanceId = 2;
-    int32 peerConnectionId = 3;
-    int32 sdpId = 4;
-    int32 iceId = 5;
-    string sdpType = 6;
-    IceCandidateModel ice = 7;
+    repeated IceCandidateItemModel iceList = 3;
 }
 
 message IceResponse {
