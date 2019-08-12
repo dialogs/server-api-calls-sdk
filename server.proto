@@ -164,9 +164,9 @@ message AnswerCallResponse {
     }
     
     oneof result {
-        Empty callDoesNotExists = 1;
-        Empty callAlreadyPickedUp = 2;
-        AnswerCallResponseSuccessModel success = 3;
+        AnswerCallResponseSuccessModel success = 1;
+        Empty callDoesNotExists = 2;
+        Empty callAlreadyPickedUp = 3;
     }
 }
 
@@ -174,8 +174,6 @@ message DisposeCallRequest {
     string callId = 1;
     Int32Value instanceId = 2;
     HANGUP_REASON reason = 3;
-    StringValue mergedWithCallId = 4;
-    map<string, string> parameters = 5;
 }
 
 message DisposeCallResponse {
@@ -189,7 +187,12 @@ message LockCallRequest {
 }
 
 message LockCallResponse {
-    bool locked = 1;
+    
+    oneof result {
+        bool locked = 1;
+        Empty callDoesNotExists = 2;
+        Empty callAlreadyPickedUp = 3;
+    }
 }
 
 message JoinCallRequest {
@@ -226,6 +229,12 @@ message IceRequest {
 }
 
 message IceResponse {
+    
+    oneof result {
+        Empty success = 1;
+        Empty callDoesNotExists = 2;
+        Empty callAlreadyPickedUp = 3;
+    }
 }
 
 message AckRequest {
@@ -261,7 +270,6 @@ message ConnectResponse {
         string callId = 1;
         Int32Value instanceId = 2;
         DISPOSE_REASON reason = 3;
-        map<string, string> parameters = 4;
     }
     
     SeqModel seq = 1;
