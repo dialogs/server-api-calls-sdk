@@ -5,6 +5,7 @@ option java_package = "im.dlg.sdk.calls.client.p2p.api";
 
 service CallService {
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
+    rpc ack (AckRequest) returns (AckResponse) {};
     rpc generateCallId (GenerateCallIdRequest) returns (GenerateCallIdResponse) {};
     rpc generateId (GenerateIdRequest) returns (GenerateIdResponse) {};
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
@@ -13,8 +14,7 @@ service CallService {
     rpc disposeCall (DisposeCallRequest) returns (DisposeCallResponse) {};
     rpc lockCall (LockCallRequest) returns (LockCallResponse) {};
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
-    rpc ice (IceRequest) returns (IceResponse) {};
-    rpc ack (AckRequest) returns (AckResponse) {};
+    rpc iceCall (IceCallRequest) returns (IceCallResponse) {};
 }
 
 message Empty {
@@ -53,10 +53,11 @@ enum DISPOSE_REASON {
     DISPOSE_REASON_CALL_DOES_NOT_EXISTS = 2;
     DISPOSE_REASON_PICKED_UP = 3;
     DISPOSE_REASON_NORMAL = 4;
-    DISPOSE_REASON_NOT_FOUND = 5;
+    DISPOSE_REASON_CALLEE_NOT_FOUND = 5;
     DISPOSE_REASON_NO_ANSWER = 6;
     DISPOSE_REASON_BUSY = 7;
     DISPOSE_REASON_REJECTED = 8;
+    DISPOSE_REASON_CALLER_DISABLED = 9;
 }
 
 
@@ -136,7 +137,7 @@ message CreateCallResponse {
     }
     
     message CreateCallResponseErrorModel {
-        map<string, string> parameters = 1;
+        DISPOSE_REASON reason = 1;
     }
     
     oneof result {
@@ -163,10 +164,13 @@ message AnswerCallResponse {
         ConnectToCallSuccessModel connect = 1;
     }
     
+    message AnswerCallResponseErrorModel {
+        DISPOSE_REASON reason = 1;
+    }
+    
     oneof result {
         AnswerCallResponseSuccessModel success = 1;
-        Empty callDoesNotExists = 2;
-        Empty callAlreadyPickedUp = 3;
+        AnswerCallResponseErrorModel error = 2;
     }
 }
 
@@ -188,10 +192,17 @@ message LockCallRequest {
 
 message LockCallResponse {
     
-    oneof result {
+    message LockCallResponseSuccessModel {
         bool locked = 1;
-        Empty callDoesNotExists = 2;
-        Empty callAlreadyPickedUp = 3;
+    }
+    
+    message LockCallResponseErrorModel {
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        LockCallResponseSuccessModel success = 1;
+        LockCallResponseErrorModel error = 2;
     }
 }
 
@@ -204,11 +215,24 @@ message JoinCallRequest {
 }
 
 message JoinCallResponse {
+    
+    message JoinCallResponseSuccessModel {
+        bool locked = 1;
+    }
+    
+    message JoinCallResponseErrorModel {
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        JoinCallResponseSuccessModel success = 1;
+        JoinCallResponseErrorModel error = 2;
+    }
 }
 
-message IceRequest {
+message IceCallRequest {
 
-    message IceCandidateItemModel {
+    message IceCallRequestCandidateItemModel {
 
         message IceCandidateModel {
             string candidate = 1;
@@ -216,26 +240,32 @@ message IceRequest {
             int32 sdpMLineIndex = 3;
         }
         
-        int32 peerConnectionId = 3;
-        int32 sdpId = 4;
-        int32 iceId = 5;
-        string sdpType = 6;
-        IceCandidateModel ice = 7;
+        int32 peerConnectionId = 1;
+        int32 sdpId = 2;
+        int32 iceId = 3;
+        string sdpType = 4;
+        IceCandidateModel ice = 5;
     }
     
     string callId = 1;
     int32 instanceId = 2;
-    repeated IceCandidateItemModel ices = 3;
+    repeated IceCallRequestCandidateItemModel ices = 3;
 }
 
-message IceResponse {
+message IceCallResponse {
+    
+    message IceCallResponseSuccessModel {
+        bool locked = 1;
+    }
+    
+    message IceCallResponseErrorModel {
+        DISPOSE_REASON reason = 1;
+    }
     
     oneof result {
-        Empty success = 1;
-        Empty callDoesNotExists = 2;
-        Empty callAlreadyPickedUp = 3;
-    }
-}
+        IceCallResponseSuccessModel success = 1;
+        IceCallResponseErrorModel error = 2;
+    }}
 
 message AckRequest {
     SeqModel seq = 1;
@@ -278,7 +308,7 @@ message ConnectResponse {
         ServerCallListModel calls = 2;
         DisposeCallModel dispose = 3;
         JoinCallRequest join = 4;
-        IceRequest ice = 5;
+        IceCallRequest ice = 5;
     }
 }
 
