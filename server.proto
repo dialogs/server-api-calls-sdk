@@ -222,7 +222,7 @@ message IceRequest {
     
     string callId = 1;
     int32 instanceId = 2;
-    repeated IceCandidateItemModel iceList = 3;
+    repeated IceCandidateItemModel ices = 3;
 }
 
 message IceResponse {
@@ -240,7 +240,7 @@ message ConnectRequest {
 
 message ConnectResponse {
     
-    message ServerCallList {
+    message ServerCallListModel {
         
         message ServerCallModel {
             int32 stateId = 1;
@@ -267,7 +267,7 @@ message ConnectResponse {
     SeqModel seq = 1;
     
     oneof data {
-        ServerCallList calls = 2;
+        ServerCallListModel calls = 2;
         DisposeCallModel dispose = 3;
         JoinCallRequest join = 4;
         IceRequest ice = 5;
