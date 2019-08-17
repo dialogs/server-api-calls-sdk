@@ -6,7 +6,6 @@ option java_package = "im.dlg.sdk.calls.client.p2p.api";
 service CallService {
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
     rpc ack (AckRequest) returns (AckResponse) {};
-    rpc generateCallId (GenerateCallIdRequest) returns (GenerateCallIdResponse) {};
     rpc generateId (GenerateIdRequest) returns (GenerateIdResponse) {};
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
     rpc ringingCall (RingingCallRequest) returns (RingingCallResponse) {};
@@ -106,13 +105,6 @@ message ConnectToCallSuccessModel {
 message SdpModel {
     string sdp = 1;
     string type = 2;
-}
-
-message GenerateCallIdRequest {
-}
-
-message GenerateCallIdResponse {
-    string callId = 1;
 }
 
 message GenerateIdRequest {
