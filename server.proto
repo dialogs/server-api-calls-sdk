@@ -108,8 +108,8 @@ message SdpModel {
 }
 
 message MergeCallModel {
-    int32 local = 1;
-    int32 remove = 2;
+    string fingerPrint = 1;
+    bool canBeMerged = 2;
 }
 
 message GenerateIdRequest {
