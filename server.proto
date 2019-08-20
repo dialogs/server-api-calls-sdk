@@ -39,7 +39,7 @@ enum CALL_DIRECTION {
 
 enum CALL_STATE {
     CALL_STATE_UNKNOWN = 0;
-    CALL_STATE_TRIYNG = 1;
+    CALL_STATE_TRYING = 1;
     CALL_STATE_PROGRESS = 2;
     CALL_STATE_RINGING = 3;
     CALL_STATE_TALKING = 4;
@@ -108,8 +108,8 @@ message SdpModel {
 }
 
 message MergeCallModel {
-    string fingerPrint = 1;
-    bool canBeMerged = 2;
+    string key = 1;
+    bool merge = 2;
 }
 
 message GenerateIdRequest {
