@@ -161,6 +161,19 @@ message RingingCallRequest {
 }
 
 message RingingCallResponse {
+    
+    message RingingCallResponseSuccessModel {
+    }
+    
+    message RingingCallResponseErrorModel {
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        RingingCallResponseErrorModel error = 2;
+        RingingCallResponseSuccessModel success = 3;
+    }
 }
 
 message AnswerCallRequest {
