@@ -55,7 +55,7 @@ const grpcReplace = () => gulp
         .pipe(gulpReplace('CALL_DIRECTION_OUTBOUND = 2', 'CALL_DIRECTION_OUTBOUND = "CALL_DIRECTION_OUTBOUND"'))
 
         .pipe(gulpReplace('CALL_STATE_UNKNOWN = 0', 'CALL_STATE_UNKNOWN = "CALL_STATE_UNKNOWN"'))
-        .pipe(gulpReplace('CALL_STATE_TRIYNG = 1', 'CALL_STATE_TRIYNG = "CALL_STATE_TRIYNG"'))
+        .pipe(gulpReplace('CALL_STATE_TRYING = 1', 'CALL_STATE_TRYING = "CALL_STATE_TRYING"'))
         .pipe(gulpReplace('CALL_STATE_PROGRESS = 2', 'CALL_STATE_PROGRESS = "CALL_STATE_PROGRESS"'))
         .pipe(gulpReplace('CALL_STATE_RINGING = 3', 'CALL_STATE_RINGING = "CALL_STATE_RINGING"'))
         .pipe(gulpReplace('CALL_STATE_TALKING = 4', 'CALL_STATE_TALKING = "CALL_STATE_TALKING"'))
