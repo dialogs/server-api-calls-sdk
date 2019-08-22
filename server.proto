@@ -306,9 +306,9 @@ message ConnectRequest {
 
 message ConnectResponse {
     
-    message ServerCallListModel {
+    message ConnectResponseServerCallListModel {
         
-        message ServerCallModel {
+        message ConnectResponseServerCallListItemModel {
             int32 stateId = 1;
             string callId = 2;
             Int32Value instanceId = 3;
@@ -321,22 +321,30 @@ message ConnectResponse {
             MergeCallModel merge = 10;
         }
         
-        repeated ServerCallModel calls = 2;
+        repeated ConnectResponseServerCallListItemModel calls = 2;
     }
     
-    message DisposeCallModel {
+    message ConnectResponseDisposeCallModel {
         string callId = 1;
         Int32Value instanceId = 2;
         DISPOSE_REASON reason = 3;
     }
     
+    message ConnectResponseJoinCallModel {
+        JoinCallRequest join = 1;
+    }
+    
+    message ConnectResponseIceCallModel {
+        IceCallRequest ice = 1;
+    }
+    
     SeqModel seq = 1;
     
     oneof data {
-        ServerCallListModel calls = 2;
-        DisposeCallModel dispose = 3;
-        JoinCallRequest join = 4;
-        IceCallRequest ice = 5;
+        ConnectResponseServerCallListModel calls = 2;
+        ConnectResponseDisposeCallModel dispose = 3;
+        ConnectResponseJoinCallModel join = 4;
+        ConnectResponseIceCallModel ice = 5;
     }
 }
 
