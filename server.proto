@@ -122,8 +122,9 @@ message GenerateIdResponse {
     }
     
     oneof result {
-        GenerateIdResponseErrorModel error = 1;
-        GenerateIdResponseSuccessModel success = 2;
+        string invalidRequest = 1;
+        GenerateIdResponseErrorModel error = 2;
+        GenerateIdResponseSuccessModel success = 3;
     }
 }
 
@@ -143,8 +144,9 @@ message CreateCallResponse {
     }
     
     oneof result {
-        CreateCallResponseErrorModel error = 1;
-        CreateCallResponseSuccessModel success = 2;
+        string invalidRequest = 1;
+        CreateCallResponseErrorModel error = 2;
+        CreateCallResponseSuccessModel success = 3;
     }
 }
 
@@ -171,8 +173,9 @@ message AnswerCallResponse {
     }
     
     oneof result {
-        AnswerCallResponseSuccessModel success = 1;
+        string invalidRequest = 1;
         AnswerCallResponseErrorModel error = 2;
+        AnswerCallResponseSuccessModel success = 3;
     }
 }
 
@@ -183,6 +186,18 @@ message DisposeCallRequest {
 }
 
 message DisposeCallResponse {
+    
+    message DisposeCallResponseSuccessModel {
+    }
+    
+    message DisposeCallResponseErrorModel {
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        DisposeCallResponseErrorModel error = 2;
+        DisposeCallResponseSuccessModel success = 3;
+    }
 }
 
 message LockCallRequest {
@@ -203,8 +218,9 @@ message LockCallResponse {
     }
     
     oneof result {
-        LockCallResponseSuccessModel success = 1;
+        string invalidRequest = 1;
         LockCallResponseErrorModel error = 2;
+        LockCallResponseSuccessModel success = 3;
     }
 }
 
@@ -227,8 +243,9 @@ message JoinCallResponse {
     }
     
     oneof result {
-        JoinCallResponseSuccessModel success = 1;
+        string invalidRequest = 1;
         JoinCallResponseErrorModel error = 2;
+        JoinCallResponseSuccessModel success = 3;
     }
 }
 
@@ -265,9 +282,11 @@ message IceCallResponse {
     }
     
     oneof result {
-        IceCallResponseSuccessModel success = 1;
+        string invalidRequest = 1;
         IceCallResponseErrorModel error = 2;
-    }}
+        IceCallResponseSuccessModel success = 3;
+    }
+}
 
 message AckRequest {
     SeqModel seq = 1;
