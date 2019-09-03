@@ -6,6 +6,7 @@ before_script:
     - export RELEASE_BRANCH=release/$VERSION
     - export GITURL=https://imd:${GITLAB_TOKEN}@gitlab.transmit.im/sdk/calls/server-api-calls-sdk.git
     - export GRADLE_USER_HOME=`pwd`/.gradle
+    - export GRADLE_OPTS="-Dorg.gradle.daemon=false"
 
 cache:
     paths:
@@ -169,7 +170,7 @@ publish_android_release:
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
         - echo "githubUser=${GITHUB_USER}" >> gradle.properties
         - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
-        - ./gradlew publish
+        - ./gradlew --scan publish
     dependencies:
         - build_android_release
 
