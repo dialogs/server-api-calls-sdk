@@ -5,6 +5,12 @@ before_script:
     - export RELEASE_VERSION=$VERSION-RELEASE
     - export RELEASE_BRANCH=release/$VERSION
     - export GITURL=https://imd:${GITLAB_TOKEN}@gitlab.transmit.im/sdk/calls/server-api-calls-sdk.git
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+    paths:
+        - .gradle/wrapper
+        - .gradle/caches
 
 build_npm:
     stage: build
