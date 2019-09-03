@@ -124,24 +124,27 @@ enum DISPOSE_REASON {
 
     // Participants normally finished call
     DISPOSE_REASON_NORMAL = 4;
+    
+    // Participant transfered call to another participant/call
+    DISPOSE_REASON_TRANSFER = 5;
 
     // Callee is not found
-    DISPOSE_REASON_CALLEE_NOT_FOUND = 5;
+    DISPOSE_REASON_CALLEE_NOT_FOUND = 6;
 
     // Call was not answered
-    DISPOSE_REASON_NO_ANSWER = 6;
+    DISPOSE_REASON_NO_ANSWER = 7;
 
     // Callee is busy
-    DISPOSE_REASON_BUSY = 7;
+    DISPOSE_REASON_BUSY = 8;
 
     // Callee rejected call
-    DISPOSE_REASON_REJECTED = 8;
+    DISPOSE_REASON_REJECTED = 9;
 
     // Caller is disabled
-    DISPOSE_REASON_CALLER_DISABLED = 9;
+    DISPOSE_REASON_CALLER_DISABLED = 10;
 
     // Callee is disabled
-    DISPOSE_REASON_CALLEE_DISABLED = 10;
+    DISPOSE_REASON_CALLEE_DISABLED = 11;
 }
 
 /* ===============================================================================
