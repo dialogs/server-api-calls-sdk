@@ -5,16 +5,16 @@ apply plugin: 'maven-publish'
 group = 'im.dlg'
 version = '2.0.0-beta'
 
-JOB_ID = System.getenv('CI_JOB_ID') || 'SNAPSHOT'
+def jobId = System.getenv('CI_JOB_ID') ?: 'SNAPSHOT'
 
 if (System.getenv('CI_COMMIT_REF_NAME') == null) {
-    version = version + "-local-" + JOB_ID
+    version = version + "-local-" + jobId
 }
 else if (System.getenv('CI_COMMIT_REF_NAME').startsWith ("release/")) {
     version = version + "-RELEASE"
 }
 else if (System.getenv('CI_COMMIT_REF_NAME') != "master") {
-    version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + JOB_ID
+    version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
 }
 
 
