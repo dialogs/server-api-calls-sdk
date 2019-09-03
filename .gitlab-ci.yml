@@ -31,6 +31,8 @@ build_android:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - echo "githubUser=${GITHUB_USER}" > gradle.properties
+        - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
         - ./gradlew build
     artifacts:
         paths:
@@ -59,6 +61,8 @@ build_android_release:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - echo "githubUser=${GITHUB_USER}" > gradle.properties
+        - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
         - ./gradlew build
     artifacts:
         paths:
@@ -88,6 +92,8 @@ build_android_master:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - echo "githubUser=${GITHUB_USER}" > gradle.properties
+        - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
         - ./gradlew build
     artifacts:
         paths:
@@ -105,7 +111,7 @@ publish_npm:
         - npm publish --tag=$CI_COMMIT_REF_SLUG-latest
     dependencies:
         - build_npm
-        
+
 publish_android:
     when: manual
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
@@ -116,8 +122,10 @@ publish_android:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - echo "githubUser=${GITHUB_USER}" > gradle.properties
+        - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
         - ./gradlew publish
-    dependencies: 
+    dependencies:
         - build_android
 
 release:
@@ -130,7 +138,7 @@ release:
     script:
         - git checkout -b ${RELEASE_BRANCH}
         - git push ${GITURL} ${RELEASE_BRANCH}
-    dependencies: 
+    dependencies:
         - build_npm
         - build_android
 
@@ -142,9 +150,9 @@ publish_npm_release:
     script:
         - cd npm
         - npm publish --tag=RELEASE-latest
-    dependencies: 
+    dependencies:
         - build_npm_release
-        
+
 publish_android_release:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
@@ -153,10 +161,12 @@ publish_android_release:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - echo "githubUser=${GITHUB_USER}" > gradle.properties
+        - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
         - ./gradlew publish
-    dependencies: 
+    dependencies:
         - build_android_release
-        
+
 publish_npm_master:
     image: node:10.16.1
     stage: deploy
@@ -165,9 +175,9 @@ publish_npm_master:
     script:
         - cd npm
         - npm publish --tag=latest
-    dependencies: 
+    dependencies:
         - build_npm_master
-        
+
 publish_android_master:
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
@@ -176,7 +186,9 @@ publish_android_master:
     script:
         - echo "mavenUser=${NEXUSUSER}" > gradle.properties
         - echo "mavenPassword=${NEXUSPASS}" >> gradle.properties
+        - echo "githubUser=${GITHUB_USER}" > gradle.properties
+        - echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
         - ./gradlew publish
-    dependencies: 
+    dependencies:
         - build_android_master
         

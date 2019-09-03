@@ -103,5 +103,13 @@ publishing {
                 password mavenPassword
             }
         }
+
+        maven {
+            url = 'https://maven.pkg.github.com/dialogs/dialog-android-platform'
+            credentials {
+                username githubUser
+                password githubPassword
+            }
+        }
     }
 }
