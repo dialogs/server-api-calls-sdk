@@ -88,7 +88,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 publishing {
     publications {
-        MyPublication(MavenPublication) {
+        ServerAPICallsSDK(MavenPublication) {
             artifactId = 'server-api-calls-sdk'
             from components.java
             artifact sourcesJar
