@@ -27,6 +27,11 @@ service CallService {
      Create call
     =========================================================================== */
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
+    
+    /* ===========================================================================
+     Transfer call
+    =========================================================================== */
+    rpc transferCall (TransferCallRequest) returns (TransferCallResponse) {};
 
     /* ===========================================================================
      Notify server that inbound call is riniging on device
@@ -209,7 +214,14 @@ message ConnectToCallSuccessModel {
         repeated IceServerModel iceServers = 2;
     }
     
+    message FeaturesModel {
+        bool attendedTrasnfer = 1;
+        bool unAttendedTrasnfer = 2;
+    }
+
+    
     IceSettingsModel iceSettings = 1;
+    FeaturesModel features = 2;
 }
 
 /* ===============================================================================
@@ -290,6 +302,49 @@ message CreateCallResponse {
         string invalidRequest = 1;
         CreateCallResponseErrorModel error = 2;
         CreateCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Transfer call request
+=============================================================================== */
+message TransferCallRequest {
+    // unique call identifier (UUID)
+    string callId = 1;
+    
+    // particiapnt wrapper
+    message TransferCallRequestParticipantModel {
+        map<string, string> parameters = 1;
+    }
+    
+    message TrasnferOneOfModel {
+        // transfer to particiapnt (unattended transfer) or call (attended transfer)
+        oneof transfer {
+            string callId = 1;
+            TransferCallRequestParticipantModel participant = 2;
+        }
+    }
+    
+    TrasnferOneOfModel transfer = 2;
+}
+
+/* ===============================================================================
+ Transfer call response
+=============================================================================== */
+message TransferCallResponse {
+    
+    message TransferCallResponseSuccessModel {
+    }
+    
+    message TransferCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        TransferCallResponseErrorModel error = 2;
+        TransferCallResponseSuccessModel success = 3;
     }
 }
 
