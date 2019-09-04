@@ -5,14 +5,16 @@ apply plugin: 'maven-publish'
 group = 'im.dlg'
 version = '2.0.0-beta'
 
+def jobId = System.getenv('CI_JOB_ID') ?: 'SNAPSHOT'
+
 if (System.getenv('CI_COMMIT_REF_NAME') == null) {
-    version = version + "-local-SNAPSHOT"
+    version = version + "-local-" + jobId
 }
 else if (System.getenv('CI_COMMIT_REF_NAME').startsWith ("release/")) {
     version = version + "-RELEASE"
 }
 else if (System.getenv('CI_COMMIT_REF_NAME') != "master") {
-    version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-SNAPSHOT'
+    version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
 }
 
 
@@ -86,7 +88,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 publishing {
     publications {
-        MyPublication(MavenPublication) {
+        ServerAPICallsSDK(MavenPublication) {
             artifactId = 'server-api-calls-sdk'
             from components.java
             artifact sourcesJar
