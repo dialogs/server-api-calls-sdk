@@ -312,9 +312,7 @@ message CreateCallResponse {
  Transfer call request
 =============================================================================== */
 message TransferCallRequest {
-    // unique call identifier (UUID)
-    string callId = 1;
-    
+
     // particiapnt wrapper
     message TransferCallRequestParticipantModel {
         map<string, string> parameters = 1;
@@ -328,7 +326,13 @@ message TransferCallRequest {
         }
     }
     
-    TrasnferOneOfModel transfer = 2;
+    // unique call identifier (UUID)
+    string callId = 1;
+
+    // call instance id
+    int32 instanceId = 2;
+
+    TrasnferOneOfModel transfer = 3;
 }
 
 /* ===============================================================================
