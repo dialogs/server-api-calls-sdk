@@ -3,6 +3,8 @@ syntax = "proto3";
 package im.dlg.sdk.calls.client.p2p.api;
 option java_package = "im.dlg.sdk.calls.client.p2p.api";
 
+import "google/protobuf/wrappers.proto";
+
 /* ===============================================================================
  Main call service
 =============================================================================== */
@@ -65,18 +67,6 @@ service CallService {
 }
 
 message Empty {
-}
-
-message Int64Value {
-  int64 value = 1;
-}
-
-message Int32Value {
-  int32 value = 1;
-}
-
-message StringValue {
-  string value = 1;
 }
 
 enum CALL_DIRECTION {
@@ -217,14 +207,13 @@ message ConnectToCallSuccessModel {
         repeated IceServerModel iceServers = 2;
     }
     
-    message FeaturesModel {
+    message ConnectToCallSuccessFeaturesModel {
         bool attendedTrasnfer = 1;
         bool unAttendedTrasnfer = 2;
     }
-
     
     IceSettingsModel iceSettings = 1;
-    FeaturesModel features = 2;
+    ConnectToCallSuccessFeaturesModel features = 2;
 }
 
 /* ===============================================================================
@@ -505,7 +494,6 @@ message JoinCallRequest {
 message JoinCallResponse {
     
     message JoinCallResponseSuccessModel {
-        bool locked = 1;
     }
     
     message JoinCallResponseErrorModel {
@@ -614,7 +602,7 @@ message ConnectResponse {
             string callId = 2;
             
             // current instance id
-            Int32Value instanceId = 3;
+            google.protobuf.Int32Value instanceId = 3;
             
             // signaling state
             CALL_STATE state = 4;
@@ -626,7 +614,7 @@ message ConnectResponse {
             bool currentDevice = 6;
             
             // call was answered at
-            Int64Value answerDateUTC = 7;
+            google.protobuf.Int64Value answerDateUTC = 7;
             
             // call has video
             bool video = 8;
@@ -637,7 +625,7 @@ message ConnectResponse {
             // call may be merged with;
             MergeCallModel merge = 10;
             
-            StringValue groupCallId = 11;
+            google.protobuf.StringValue groupCallId = 11;
         }
         
         repeated ConnectResponseServerCallListItemModel calls = 2;
@@ -645,7 +633,7 @@ message ConnectResponse {
     
     message ConnectResponseDisposeCallModel {
         string callId = 1;
-        Int32Value instanceId = 2;
+        google.protobuf.Int32Value instanceId = 2;
         DISPOSE_REASON reason = 3;
     }
     
@@ -655,6 +643,13 @@ message ConnectResponse {
     
     message ConnectResponseIceCallModel {
         IceCallRequest ice = 1;
+    }
+    
+    message ConnectResponseRenegotiateCallModel {
+        string callId = 1;
+        int32 instanceId = 2;
+        int32 peerConnectionId = 3;
+        google.protobuf.Int32Value sdpId = 4;
     }
     
     // message unique id
@@ -672,5 +667,8 @@ message ConnectResponse {
         
         // call has ice to process
         ConnectResponseIceCallModel ice = 5;
+        
+        // call needed to be renegotiated from client
+        ConnectResponseRenegotiateCallModel renegotiate = 6;
     }
 }
