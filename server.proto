@@ -636,6 +636,8 @@ message ConnectResponse {
             
             // call may be merged with;
             MergeCallModel merge = 10;
+            
+            StringValue groupCallId = 11;
         }
         
         repeated ConnectResponseServerCallListItemModel calls = 2;
