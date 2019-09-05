@@ -66,9 +66,6 @@ service CallService {
     rpc iceCall (IceCallRequest) returns (IceCallResponse) {};
 }
 
-message Empty {
-}
-
 enum CALL_DIRECTION {
     CALL_DIRECTION_UNKNOWN = 0;
     CALL_DIRECTION_INBOUND = 1;
@@ -409,7 +406,7 @@ message DisposeCallRequest {
     string callId = 1;
     
     // call instance id
-    Int32Value instanceId = 2;
+    google.protobuf.Int32Value instanceId = 2;
     
     HANGUP_REASON reason = 3;
 }
