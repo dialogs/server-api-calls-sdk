@@ -78,7 +78,7 @@ const grpcReplace = () => gulp
         .pipe(gulpReplace('HANGUP_REASON_ERROR = 1', 'HANGUP_REASON_ERROR = "HANGUP_REASON_ERROR"'))
         .pipe(gulpReplace('HANGUP_REASON_NORMAL = 2', 'HANGUP_REASON_NORMAL = "HANGUP_REASON_NORMAL"'))
         .pipe(gulpReplace('HANGUP_REASON_BUSY = 3', 'HANGUP_REASON_BUSY = "HANGUP_REASON_BUSY"'))
-        .pipe(gulpReplace('HANGUP_REASON_REJECTED = 4', 'HANGUP_REASON_REJECTED = "HANGUP_REASON_REJECTED"'))
+        .pipe(gulpReplace('HANGUP_REASON_REJECT = 4', 'HANGUP_REASON_REJECT = "HANGUP_REASON_REJECT"'))
 
         .pipe(gulpReplace('ICE_SETTINGS_UNKNOWN = 0', 'ICE_SETTINGS_UNKNOWN = "ICE_SETTINGS_UNKNOWN"'))
         .pipe(gulpReplace('ICE_SETTINGS_NONE = 1', 'ICE_SETTINGS_NONE = "ICE_SETTINGS_NONE"'))

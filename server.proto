@@ -150,7 +150,7 @@ enum HANGUP_REASON {
     HANGUP_REASON_BUSY = 3;
 
     // Callee rejects call
-    HANGUP_REASON_REJECTED = 4;
+    HANGUP_REASON_REJECT = 4;
 }
 
 /* ===============================================================================
