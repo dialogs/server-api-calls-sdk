@@ -1,6 +1,6 @@
 {
     "name": "@dlghq/server-api-calls-sdk",
-    "version": "2.0.1-beta",
+    "version": "2.1.0",
     "author": "imd@dlg.im",
     "scripts": {
         "install": "gulp"
@@ -9,9 +9,9 @@
         "gulp": "4.0.2",
         "gulp-clean": "0.4.0",
         "gulp-replace": "1.0.0",
-        "rxjs": "6.5.2",
-        "rxjs-compat": "6.5.2",
+        "rxjs": "6.5.3",
+        "rxjs-compat": "6.5.3",
         "rxjs-grpc": "0.2.4",
-        "typescript": "3.5.3"
+        "typescript": "3.6.3"
     }
 }
