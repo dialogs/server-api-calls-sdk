@@ -1,3 +1,6 @@
+services:
+  - docker:19.03.0-dind
+
 before_script:
     - echo ${NPMRC} > ~/.npmrc
     - export VERSION=$(node -p "require('./package.json').version")
@@ -14,6 +17,8 @@ cache:
         - .gradle/caches
 
 build_npm:
+    tags:
+        - calls 
     stage: build
     image: node:10.16.1
     except:
@@ -30,6 +35,8 @@ build_npm:
             - npm
 
 build_android:
+    tags:
+        - calls 
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     except:
@@ -46,6 +53,8 @@ build_android:
         - "build/libs/*.jar"
 
 build_npm_release:
+    tags:
+        - calls 
     image: node:10.16.1
     stage: build
     only:
@@ -61,6 +70,8 @@ build_npm_release:
             - npm
 
 build_android_release:
+    tags:
+        - calls 
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     only:
@@ -77,6 +88,8 @@ build_android_release:
 
 
 build_npm_master:
+    tags:
+        - calls 
     image: node:10.16.1
     stage: build
     only:
@@ -92,6 +105,8 @@ build_npm_master:
             - npm
 
 build_android_master:
+    tags:
+        - calls 
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: build
     only:
@@ -107,6 +122,8 @@ build_android_master:
         - "build/libs/*.jar"
 
 publish_npm:
+    tags:
+        - calls 
     when: manual
     image: node:10.16.1
     stage: deploy
@@ -136,6 +153,8 @@ publish_android:
         - build_android
 
 release:
+    tags:
+        - calls 
     image: node:10.16.1
     except:
         - master
@@ -150,6 +169,8 @@ release:
         - build_android
 
 publish_npm_release:
+    tags:
+        - calls 
     image: node:10.16.1
     stage: deploy
     only:
@@ -161,6 +182,8 @@ publish_npm_release:
         - build_npm_release
 
 publish_android_release:
+    tags:
+        - calls 
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
     only:
@@ -175,6 +198,8 @@ publish_android_release:
         - build_android_release
 
 publish_npm_master:
+    tags:
+        - calls 
     image: node:10.16.1
     stage: deploy
     only:
@@ -186,6 +211,8 @@ publish_npm_master:
         - build_npm_master
 
 publish_android_master:
+    tags:
+        - calls 
     image: gitlab.transmit.im:5001/gitlab/builders/server-builder:latest
     stage: deploy
     only:
