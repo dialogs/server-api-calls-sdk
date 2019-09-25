@@ -91,7 +91,7 @@ pipeline {
                                 passwordVariable: 'GIT_PASSWORD']]) {
                     sh """
                         git checkout -b release/${env.PACKAGE_VERSION}
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@bitbucket.transmit.im/scm/calls/calls-api.git release/${env.PACKAGE_VERSION}
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@bitbucket.transmit.im/scm/calls/server-api-calls-sdk.git release/${env.PACKAGE_VERSION}
                     """
                 }
             }
