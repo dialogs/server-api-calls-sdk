@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage("Import global env vars") {
             when {
-                anyOff {
+                anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
                     expression{env.BRANCH_NAME == '*' &&
                                 triggeredBy == "UserIdCause" &&
