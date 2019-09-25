@@ -224,12 +224,11 @@ pipeline {
         }
         stage("Publish android snapshot") {
             when {
-                expression{env.BRANCH_NAME == '*' && triggeredBy == "UserIdCause"}
-                anyOf {
-                    expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME != 'master'}
-                    expression{env.BRANCH_NAME != '/test/.*/'}
-                }
+                expression{env.BRANCH_NAME == 'develop' || \
+                           env.BRANCH_NAME == '*' && \ 
+                           triggeredBy == "UserIdCause" && \
+                           env.BRANCH_NAME != 'master' && \
+                           env.BRANCH_NAME != '/release/.*/'}
             }
             agent {
                 docker {
