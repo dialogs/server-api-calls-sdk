@@ -159,11 +159,9 @@ pipeline {
         }
         stage("Publish npm shapshot") {
             when {
-                expression{env.BRANCH_NAME == '*' && triggeredBy == "UserIdCause"} ||
-                allOf {
+                anyOf {
+                    expression{env.BRANCH_NAME == '*' && triggeredBy == "UserIdCause"}
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME != 'master'}
-                    expression{env.BRANCH_NAME != '/release/.*/'}
                 }
             }
             agent {
