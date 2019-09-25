@@ -12,7 +12,7 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME == 'feature\/.*'}
+                    expression{env.BRANCH_NAME == 'feature/.*'}
                 }
             }
             agent {
