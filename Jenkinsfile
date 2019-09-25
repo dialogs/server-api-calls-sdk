@@ -12,7 +12,7 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{triggeredBy == "UserIdCause" || branch: 'feature/.*/'}
+                    expression{triggeredBy == "UserIdCause" || env.BRANCH_NAME == 'feature/.*/'}
                 }
             }
             agent {
