@@ -16,7 +16,7 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME ==~ 'feature/.*' &&  env.specificCause}
+                    expression{env.BRANCH_NAME ==~ 'feature/.*' &&  env.specificCause != '[]'}
                 }
             }
             agent {
