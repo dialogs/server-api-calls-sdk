@@ -9,6 +9,14 @@ pipeline {
     }
     stages {
         stage("Import global env vars") {
+            when {
+                expression{env.BRANCH_NAME == 'develop' ||
+                           env.BRANCH_NAME == '*' &&
+                           triggeredBy == "UserIdCause" &&
+                           env.BRANCH_NAME != 'master' &&
+                           env.BRANCH_NAME != '/release/.*/'
+                }
+            }
             agent {
                 label 'docker'
             }
