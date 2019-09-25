@@ -10,13 +10,12 @@ pipeline {
     stages {
         stage("Import global env vars") {
             when {
-                anyOf {
-                    env.BRANCH_NAME == 'develop'
-                    allOf {
-                        triggeredBy == "UserIdCause"
-                        env.BRANCH_NAME != 'master'
-                        env.BRANCH_NAME != '/test/.*/'
-                    }
+                anyoff {
+                    expression{env.BRANCH_NAME == 'develop'}
+                    expression{env.BRANCH_NAME == '*' &&
+                                triggeredBy == "UserIdCause" &&
+                                env.BRANCH_NAME != 'master' &&
+                                env.BRANCH_NAME != '/release/.*/'}
                 }
             }
             agent {
