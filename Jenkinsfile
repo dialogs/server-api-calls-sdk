@@ -1,4 +1,7 @@
 @Library('shared-libs') _
+
+def causes = currentBuild.getBuildCauses()
+
 pipeline {
     parameters {
             booleanParam(defaultValue: false, description: 'Create release branch', name: 'createRelease')
@@ -12,7 +15,7 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME ==~ 'feature/.*'}
+                    expression{env.BRANCH_NAME ==~ 'feature/.*' || causes == 'UserIdCause'}
                 }
             }
             agent {
@@ -134,7 +137,7 @@ pipeline {
         }
         stage("Publish npm release") {
             when {
-                branch '/release/.*/'
+                branch '/release/.*'
             }
             agent {
                 docker {
