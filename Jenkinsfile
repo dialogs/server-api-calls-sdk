@@ -47,6 +47,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
+                        echo ${causes}
                         env
                         sed -Ei 's/${env.APP_VERSION}/${env.DEVELOP_VERSION}/g' package.json
                         cat package.json
