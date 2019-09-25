@@ -12,11 +12,7 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{ 
-                        allOf{
-                            triggeredBy cause: "UserIdCause"
-                        }
-                }
+                    expression{allOf{triggeredBy cause: "UserIdCause"}}
             }
             agent {
                 label 'docker'
