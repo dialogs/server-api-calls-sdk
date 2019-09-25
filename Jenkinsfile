@@ -1,6 +1,5 @@
 @Library('shared-libs') _
 
-def causes = currentBuild.getBuildCauses()
 def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 
 pipeline {
@@ -13,12 +12,6 @@ pipeline {
     }
     stages {
         stage("Import global env vars") {
-            when {
-                anyOf {
-                    expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME ==~ 'feature/.*' &&  env.specificCause != '[]'}
-                }
-            }
             agent {
                 label 'docker'
             }
@@ -139,7 +132,7 @@ pipeline {
         }
         stage("Publish npm release") {
             when {
-                branch '/release/.*'
+                branch 'release/.*'
             }
             agent {
                 docker {
@@ -171,8 +164,8 @@ pipeline {
         stage("Publish npm shapshot") {
             when {
                 anyOf {
-                    expression{env.BRANCH_NAME == '*' && triggeredBy == "UserIdCause"}
                     expression{env.BRANCH_NAME == 'develop'}
+                    expression{env.BRANCH_NAME ==~ '.*' &&  env.specificCause != '[]'}
                 }
             }
             agent {
@@ -235,11 +228,9 @@ pipeline {
         }
         stage("Publish android snapshot") {
             when {
-                expression{env.BRANCH_NAME == 'develop' ||
-                           env.BRANCH_NAME == '*' &&
-                           triggeredBy == "UserIdCause" &&
-                           env.BRANCH_NAME != 'master' &&
-                           env.BRANCH_NAME != '/release/.*/'
+                anyOf {
+                    expression{env.BRANCH_NAME == 'develop'}
+                    expression{env.BRANCH_NAME ==~ '.*' &&  env.specificCause != '[]'}
                 }
             }
             agent {
@@ -274,7 +265,7 @@ pipeline {
         }
         stage("Publish android release") {
             when {
-                branch '/release/.*/'
+                branch 'release/.*'
             }
             agent {
                 docker {
