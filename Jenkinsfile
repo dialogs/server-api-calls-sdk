@@ -79,8 +79,8 @@ pipeline {
                                 usernameVariable: 'GIT_USERNAME',
                                 passwordVariable: 'GIT_PASSWORD']]) {
                     sh """
-                        git checkout -b test/${env.PACKAGE_VERSION}
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@bitbucket.transmit.im/scm/calls/calls-api.git test/${env.PACKAGE_VERSION}
+                        git checkout -b release/${env.PACKAGE_VERSION}
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@bitbucket.transmit.im/scm/calls/calls-api.git release/${env.PACKAGE_VERSION}
                     """
                 }
             }
@@ -163,7 +163,7 @@ pipeline {
                 allOf {
                     expression{env.BRANCH_NAME == 'develop'}
                     expression{env.BRANCH_NAME != 'master'}
-                    expression{env.BRANCH_NAME != '/test/.*/'}
+                    expression{env.BRANCH_NAME != '/release/.*/'}
                 }
             }
             agent {
