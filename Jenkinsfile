@@ -1,6 +1,7 @@
 @Library('shared-libs') _
 
 def causes = currentBuild.getBuildCauses()
+def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 
 pipeline {
     parameters {
@@ -47,7 +48,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
-                        echo ${causes}
+                        echo ${specificCause}
                         env
                         sed -Ei 's/${env.APP_VERSION}/${env.DEVELOP_VERSION}/g' package.json
                         cat package.json
