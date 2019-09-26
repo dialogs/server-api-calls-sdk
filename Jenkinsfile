@@ -134,7 +134,7 @@ pipeline {
         }
         stage("Publish npm release") {
             when {
-                branch 'release/.*'
+                branch 'release/*'
             }
             agent {
                 docker {
