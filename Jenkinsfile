@@ -33,6 +33,9 @@ pipeline {
             }
         }
         stage("Build and test") {
+            when {
+                    expression { return params.createRelease == null}
+            }
             agent {
                 docker {
                     image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
@@ -175,12 +178,22 @@ pipeline {
             }
             steps {
                 unstash 'buildNPM'
+                script {
+                    env.RELEASE_STAGE = env.STAGE_NAME
+                    if (env.BRANCH_NAME.startsWith('PR')) {
+                      env.CURRENT_BRANCH = env.CHANGE_BRANCH.replaceAll("/", "-")
+                    } else {
+                      env.CURRENT_BRANCH = env.BRANCH_NAME.replaceAll("/", "-")
+                    }
+                    env.PACKAGE_VERSION = sh(script: "grep 'version' package.json | head -1 | cut -d '\"' -f 4", returnStdout: true).trim() + "-" + env.CURRENT_BRANCH + "-" + env.BUILD_NUMBER
+                }
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
+                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' package.json
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
                         cd npm
-                        npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${VERSION}-latest
+                        npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
                 }
             }
