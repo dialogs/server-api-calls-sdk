@@ -165,16 +165,16 @@ pipeline {
             }
         }
         stage("Publish npm shapshot") {
-            when {
-                anyOf {
-                    branch 'develop'
-                    allOf {
-                        expression{env.BRANCH_NAME != 'master'}
-                        expression{env.BRANCH_NAME != 'release/.*'}
-                        triggeredBy cause: "UserIdCause"
-                    }
-                }
-            }
+            // when {
+            //     anyOf {
+            //         branch 'develop'
+            //         allOf {
+            //             expression{env.BRANCH_NAME != 'master'}
+            //             expression{env.BRANCH_NAME != 'release/.*'}
+            //             triggeredBy cause: "UserIdCause"
+            //         }
+            //     }
+            // }
             agent {
                 docker {
                     image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
@@ -235,15 +235,15 @@ pipeline {
             }
         }
         stage("Publish android snapshot") {
-            when {
-                anyOf {
-                    expression{env.BRANCH_NAME == 'develop'}
-                    allOf {
-                        branch '*'
-                        triggeredBy cause: "UserIdCause"
-                    }
-                }
-            }
+            // when {
+            //     anyOf {
+            //         expression{env.BRANCH_NAME == 'develop'}
+            //         allOf {
+            //             branch '*'
+            //             triggeredBy cause: "UserIdCause"
+            //         }
+            //     }
+            // }
             agent {
                 docker {
                     image 'harbor.transmit.im/jnr/jenkins-gradle-runner:v5.5_oracle'
