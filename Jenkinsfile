@@ -187,7 +187,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
-                        npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=6c9fb3f5-a46f-385d-9fda-4098bbf2012b
+                        npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
                         cd npm
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
@@ -239,10 +239,7 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    allOf {
-                        expression { BRANCH_NAME ==~ /.* }
-                        triggeredBy cause: "UserIdCause"
-                    }
+                    expression{env.BRANCH_NAME ==~ '.*' &&  env.specificCause != '[]'}
                 }
             }
             agent {
