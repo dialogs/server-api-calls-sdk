@@ -209,7 +209,8 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')],
+                                [[$class: 'UsernamePasswordMultiBinding',credentialsId: 'GITHUB_CREDENTIAL_dialog_bot',usernameVariable: 'GITHUB_USER',passwordVariable: 'GITHUB_PASSWORD']]) {
                     sh """
                         env
                         echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
