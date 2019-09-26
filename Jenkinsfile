@@ -187,6 +187,7 @@ pipeline {
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
                         cd npm
+                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' package.json
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
                 }
