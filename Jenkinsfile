@@ -69,7 +69,7 @@ pipeline {
         }
         stage("Create release branch") {
             when {
-                    expression { return params.createRelease == null}
+                    expression { return params.createRelease }
             }
             agent {
                 docker {
