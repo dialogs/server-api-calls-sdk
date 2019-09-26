@@ -33,9 +33,6 @@ pipeline {
             }
         }
         stage("Build and test") {
-            when {
-                    expression { return params.createRelease == null}
-            }
             agent {
                 docker {
                     image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
@@ -67,10 +64,7 @@ pipeline {
         }
         stage("Create release branch") {
             when {
-                allOf {
-                    triggeredBy cause: "UserIdCause"
-                    expression { return params.createRelease }
-                }
+                    expression { return params.createRelease == null}
             }
             agent {
                 docker {
