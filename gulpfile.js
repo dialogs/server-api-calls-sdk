@@ -17,28 +17,30 @@ const execute = (cb, command) => exec(command, function (err, stdout, stderr) {
     cb(err);
 });
 
-const createDir = (dir) => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-    }
-};
-
-const clean = () => gulp.src(['npm/*', 'generated/*'], {read: false}).pipe(gulpClean());
-
 const createDirs = cb => {
     
-    createDir ('generated');
-    createDir ('npm');
+    fs.mkdirSync('./generated', {recursive : true});
+    fs.mkdirSync('./npm', {recursive : true});
     
     cb ();
 };
 
-const grpcCopyProto = () => gulp.src('./*.proto')
-    .pipe (gulp.dest("./npm"))
-    .pipe (gulpReplace (/package.*/, 'package api;'))
-    .pipe (gulp.dest('./generated/'));
+const clean = () => gulp.src(['./npm/*', './generated/*'], {read: false}).pipe(gulpClean());
 
-const grpc = () => rxjsGrpc.main(['-o', `./generated/index.ts`, `./generated/server.proto`]);
+const grpcCopyProtoToNpm = () => gulp.src('./*.proto')
+    .pipe (gulpReplace ('package api;','package im.dlg.sdk.calls.client.history.api;'))
+    .pipe (gulp.dest("./npm"));
+
+const grpcCopyProtoToGenerated1 = () => gulp.src('./history.proto')
+    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.history.api;', 'package api;'))
+    .pipe (gulp.dest('./generated'));
+
+const grpcCopyProtoToGenerated2 = () => gulp.src('./server.proto')
+    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.p2p.api;', 'package api;'))
+    .pipe (gulp.dest('./generated'));
+
+const grpcP2P = () => rxjsGrpc.main(['-o', `./generated/p2p.ts`, `./generated/server.proto`]);
+const grpcHistory = () => rxjsGrpc.main(['-o', `./generated/history.ts`, `./generated/history.proto`]);
 
 const grpcReplace = () => gulp
         .src(['./generated/*.ts'])
@@ -90,8 +92,7 @@ const grpcReplace = () => gulp
 const generatePackageJson = cb => {
     fs.writeFileSync("npm/package.json", JSON.stringify({
         name : packageJson.name,
-        version : "VERSION",
-        main: "index.js"
+        version : "VERSION"
     }, null, 4));
     
     cb ();
@@ -100,13 +101,18 @@ const generatePackageJson = cb => {
 const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json');
 
 exports.default = series (
-    clean,
     createDirs,
+    clean,
     parallel (
         generatePackageJson,
+        grpcCopyProtoToNpm,
         series (
-            grpcCopyProto,
-            grpc,
+            grpcCopyProtoToGenerated1,
+            grpcCopyProtoToGenerated2,
+            parallel (
+                grpcP2P,
+                grpcHistory
+            ),
             grpcReplace,
             compileTs
         )
