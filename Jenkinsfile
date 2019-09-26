@@ -186,9 +186,9 @@ pipeline {
 
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
+                        cd npm
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
-                        cd npm
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
                 }
