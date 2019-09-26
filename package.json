@@ -1,19 +1,17 @@
 {
-    "name": "server-api-calls-sdk",
-    "version": "1.0.14.2",
+    "name": "@dlghq/server-api-calls-sdk",
+    "version": "2.3.0",
     "author": "imd@dlg.im",
     "scripts": {
-        "install": "gulp && tsc -p tsc.json"
+        "install": "gulp"
     },
     "devDependencies": {
-        "gulp": "3.9.1",
+        "gulp": "4.0.2",
         "gulp-clean": "0.4.0",
-        "gulp-copy": "4.0.1",
         "gulp-replace": "1.0.0",
-        "gulp-sequence": "1.0.0",
-        "rxjs": "6.4.0",
-        "rxjs-compat": "6.4.0",
-        "rxjs-grpc": "0.1.8",
-        "typescript": "3.3.1"
+        "rxjs": "6.5.3",
+        "rxjs-compat": "6.5.3",
+        "rxjs-grpc": "0.2.4",
+        "typescript": "3.6.3"
     }
 }

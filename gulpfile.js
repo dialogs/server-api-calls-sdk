@@ -1,132 +1,120 @@
+const gulp = require('gulp');
+const gulpClean = require('gulp-clean');
+const gulpReplace = require('gulp-replace');
+const { series, parallel } = require('gulp');
+
 const fs = require ('fs');
 const rx = require ("rxjs/Rx");
 const rxjsGrpc = require('rxjs-grpc/js/cli');
-
-const gulp = require('gulp');
-const gulpClean = require('gulp-clean');
-const gulpSequence = require('gulp-sequence');
-const gulpReplace = require('gulp-replace');
+const exec = require('child_process').exec;
 
 const packageJson = JSON.parse(fs.readFileSync("package.json"));
 
-gulp.task('clean',['createDirs'], function () {
-    return gulp.src(['npm/*', 'generated/*'], {read: false})
-        .pipe(gulpClean());
+const execute = (cb, command) => exec(command, function (err, stdout, stderr) {
+    console.log(stdout);
+    console.error(stderr);
+
+    cb(err);
 });
 
-gulp.task ('createDirs', function (cb) {
-    function createDir (dir) {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
-    }
+const createDirs = cb => {
     
-    createDir ('generated');
-    createDir ('npm');
+    fs.mkdirSync('./generated', {recursive : true});
+    fs.mkdirSync('./npm', {recursive : true});
     
-    return cb ();
-});
+    cb ();
+};
 
-// =============================================================================
-// GRPC
-// =============================================================================
+const clean = () => gulp.src(['./npm/*', './generated/*'], {read: false}).pipe(gulpClean());
 
-gulp.task('grpc-copy-proto-to-generated', function () {
-    return gulp.src('./*.proto')
-            .pipe (gulp.dest('./generated/'));
-});
+const grpcCopyProtoToNpm = () => gulp.src('./*.proto')
+    .pipe (gulpReplace ('package api;','package im.dlg.sdk.calls.client.history.api;'))
+    .pipe (gulp.dest("./npm"));
 
-gulp.task('grpc-remove-package-from-proto',['grpc-copy-proto-to-generated'], function () {
-    return gulp.src('./generated/*.proto')
-            .pipe (gulpReplace (/package.*/, 'package api;'))
-            .pipe (gulp.dest('./generated/'));
-});
+const grpcCopyProtoToGenerated1 = () => gulp.src('./history.proto')
+    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.history.api;', 'package api;'))
+    .pipe (gulp.dest('./generated'));
 
-gulp.task ('grpc-generate',['grpc-remove-package-from-proto'], function (cb) {
-    fs.readdir ("generated", function (error, files ) {
-        if (error) {
-            cb (error);
-        }
-        else {
-            rx.Observable.from (files)
-                .filter (file => file.toLowerCase().endsWith (".proto"))
-                .map (file => file.replace(".proto",""))
-                .flatMap (file => rx.Observable.fromPromise (rxjsGrpc.main(['-o', `./generated/index.ts`, `./generated/${file}.proto`])))
-                .toArray ()
-                .subscribe (()=> cb (), cb);
-        }
-    });
-});
+const grpcCopyProtoToGenerated2 = () => gulp.src('./server.proto')
+    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.p2p.api;', 'package api;'))
+    .pipe (gulp.dest('./generated'));
 
-gulp.task ('grpc-replace-enum', ['grpc-generate'], function () {
-    return gulp
+const grpcP2P = () => rxjsGrpc.main(['-o', `./generated/p2p.ts`, `./generated/server.proto`]);
+const grpcHistory = () => rxjsGrpc.main(['-o', `./generated/history.ts`, `./generated/history.proto`]);
+
+const grpcReplace = () => gulp
         .src(['./generated/*.ts'])
         
-        .pipe(gulpReplace("import * as $protobuf from 'protobufjs';", ''))
-        .pipe(gulpReplace("import { Observable } from 'rxjs/Observable';", "import { Observable } from 'rxjs/Rx';"))
+        .pipe(gulpReplace (/.*grpc.*/g, ''))
+        .pipe(gulpReplace (/.*Observable.*/g, ''))
 
+        .pipe(gulpReplace ("number|Long|null", 'string|null'))
+        .pipe(gulpReplace ("settings?: (api.CE_SETTINGS|null);", 'settings?: (api.ICE_SETTINGS|null);'))
         
-        .pipe(gulpReplace('INBOUND = 1', 'INBOUND = "INBOUND"'))
-        .pipe(gulpReplace('OUTBOUND = 2', 'OUTBOUND = "OUTBOUND"'))
 
-        .pipe(gulpReplace('TRIYNG = 1', 'TRIYNG = "TRIYNG"'))
-        .pipe(gulpReplace('PROGRESS = 2', 'PROGRESS = "PROGRESS"'))
-        .pipe(gulpReplace('RINGING = 3', 'RINGING = "RINGING"'))
-        .pipe(gulpReplace('TALKING = 4', 'TALKING = "TALKING"'))
-        .pipe(gulpReplace('FINISHED = 5', 'FINISHED = "FINISHED"'))
+        .pipe(gulpReplace('CALL_DIRECTION_UNKNOWN = 0', 'CALL_DIRECTION_UNKNOWN = "CALL_DIRECTION_UNKNOWN"'))
+        .pipe(gulpReplace('CALL_DIRECTION_INBOUND = 1', 'CALL_DIRECTION_INBOUND = "CALL_DIRECTION_INBOUND"'))
+        .pipe(gulpReplace('CALL_DIRECTION_OUTBOUND = 2', 'CALL_DIRECTION_OUTBOUND = "CALL_DIRECTION_OUTBOUND"'))
+
+        .pipe(gulpReplace('CALL_STATE_UNKNOWN = 0', 'CALL_STATE_UNKNOWN = "CALL_STATE_UNKNOWN"'))
+        .pipe(gulpReplace('CALL_STATE_TRYING = 1', 'CALL_STATE_TRYING = "CALL_STATE_TRYING"'))
+        .pipe(gulpReplace('CALL_STATE_PROGRESS = 2', 'CALL_STATE_PROGRESS = "CALL_STATE_PROGRESS"'))
+        .pipe(gulpReplace('CALL_STATE_RINGING = 3', 'CALL_STATE_RINGING = "CALL_STATE_RINGING"'))
+        .pipe(gulpReplace('CALL_STATE_TALKING = 4', 'CALL_STATE_TALKING = "CALL_STATE_TALKING"'))
+        .pipe(gulpReplace('CALL_STATE_FINISHED = 5', 'CALL_STATE_FINISHED = "CALL_STATE_FINISHED"'))
 
         .pipe(gulpReplace('DISPOSE_REASON_UNKNOWN = 0', 'DISPOSE_REASON_UNKNOWN = "DISPOSE_REASON_UNKNOWN"'))
-        .pipe(gulpReplace('SERVER_ERROR = 1', 'SERVER_ERROR = "SERVER_ERROR"'))
-        .pipe(gulpReplace('NORMAL = 2', 'NORMAL = "NORMAL"'))
-        .pipe(gulpReplace('CALLEE_NOT_FOUND = 3', 'CALLEE_NOT_FOUND = "CALLEE_NOT_FOUND"'))
-        .pipe(gulpReplace('CALLER_DISABLED = 4', 'CALLER_DISABLED = "CALLER_DISABLED"'))
-        .pipe(gulpReplace('CALLEE_DISABLED = 5', 'CALLEE_DISABLED = "CALLEE_DISABLED"'))
-        .pipe(gulpReplace('NO_ANSWER = 6', 'NO_ANSWER = "NO_ANSWER"'))
-        .pipe(gulpReplace('BUSY = 7', 'BUSY = "BUSY"'))
-        .pipe(gulpReplace('PICKED_UP = 8', 'PICKED_UP = "PICKED_UP"'))
-        .pipe(gulpReplace('CALL_DOES_NOT_EXISTS = 9', 'CALL_DOES_NOT_EXISTS = "CALL_DOES_NOT_EXISTS"'))
-        .pipe(gulpReplace('REJECTED = 10', 'REJECTED = "REJECTED"'))
-        .pipe(gulpReplace('INVALID_IP_RANGE = 11', 'INVALID_IP_RANGE = "INVALID_IP_RANGE"'))
+        .pipe(gulpReplace('DISPOSE_REASON_ERROR = 1', 'DISPOSE_REASON_ERROR = "DISPOSE_REASON_ERROR"'))
+        .pipe(gulpReplace('DISPOSE_REASON_CALL_DOES_NOT_EXISTS = 2', 'DISPOSE_REASON_CALL_DOES_NOT_EXISTS = "DISPOSE_REASON_CALL_DOES_NOT_EXISTS"'))
+        .pipe(gulpReplace('DISPOSE_REASON_PICKED_UP = 3', 'DISPOSE_REASON_PICKED_UP = "DISPOSE_REASON_PICKED_UP"'))
+        .pipe(gulpReplace('DISPOSE_REASON_NORMAL = 4', 'DISPOSE_REASON_NORMAL = "DISPOSE_REASON_NORMAL"'))
+        .pipe(gulpReplace('DISPOSE_REASON_TRANSFER = 5', 'DISPOSE_REASON_TRANSFER = "DISPOSE_REASON_TRANSFER"'))
+        .pipe(gulpReplace('DISPOSE_REASON_CALLEE_NOT_FOUND = 6', 'DISPOSE_REASON_CALLEE_NOT_FOUND = "DISPOSE_REASON_CALLEE_NOT_FOUND"'))
+        .pipe(gulpReplace('DISPOSE_REASON_NO_ANSWER = 7', 'DISPOSE_REASON_NO_ANSWER = "DISPOSE_REASON_NO_ANSWER"'))
+        .pipe(gulpReplace('DISPOSE_REASON_BUSY = 8', 'DISPOSE_REASON_BUSY = "DISPOSE_REASON_BUSY"'))
+        .pipe(gulpReplace('DISPOSE_REASON_REJECTED = 9', 'DISPOSE_REASON_REJECTED = "DISPOSE_REASON_REJECTED"'))
+        .pipe(gulpReplace('DISPOSE_REASON_CALLER_DISABLED = 10', 'DISPOSE_REASON_CALLER_DISABLED = "DISPOSE_REASON_CALLER_DISABLED"'))
+        .pipe(gulpReplace('DISPOSE_REASON_CALLEE_DISABLED = 11', 'DISPOSE_REASON_CALLEE_DISABLED = "DISPOSE_REASON_CALLEE_DISABLED"'))
 
-        .pipe(gulpReplace('RELAY = 1', 'RELAY = "RELAY"'))
-        .pipe(gulpReplace('ALL = 2', 'ALL = "ALL"'))
-        .pipe(gulpReplace('NONE = 3', 'NONE = "NONE"'))
+        .pipe(gulpReplace('HANGUP_REASON_UNKNOWN = 0', 'HANGUP_REASON_UNKNOWN = "HANGUP_REASON_UNKNOWN"'))
+        .pipe(gulpReplace('HANGUP_REASON_ERROR = 1', 'HANGUP_REASON_ERROR = "HANGUP_REASON_ERROR"'))
+        .pipe(gulpReplace('HANGUP_REASON_NORMAL = 2', 'HANGUP_REASON_NORMAL = "HANGUP_REASON_NORMAL"'))
+        .pipe(gulpReplace('HANGUP_REASON_BUSY = 3', 'HANGUP_REASON_BUSY = "HANGUP_REASON_BUSY"'))
+        .pipe(gulpReplace('HANGUP_REASON_REJECT = 4', 'HANGUP_REASON_REJECT = "HANGUP_REASON_REJECT"'))
 
-        .pipe(gulpReplace('USER = 1', 'USER = "USER"'))
-        .pipe(gulpReplace('GROUP = 2', 'GROUP = "GROUP"'))
+        .pipe(gulpReplace('ICE_SETTINGS_UNKNOWN = 0', 'ICE_SETTINGS_UNKNOWN = "ICE_SETTINGS_UNKNOWN"'))
+        .pipe(gulpReplace('ICE_SETTINGS_NONE = 1', 'ICE_SETTINGS_NONE = "ICE_SETTINGS_NONE"'))
+        .pipe(gulpReplace('ICE_SETTINGS_RELAY = 2', 'ICE_SETTINGS_RELAY = "ICE_SETTINGS_RELAY"'))
+        .pipe(gulpReplace('ICE_SETTINGS_ALL = 3', 'ICE_SETTINGS_ALL = "ICE_SETTINGS_ALL"'))
    
-        .pipe(gulp.dest('./generated/'));    
-});
+        .pipe(gulp.dest('./generated/'));
 
-gulp.task('grpc',['grpc-replace-enum'], function () {
-    return gulp.src('./generated/*.ts')
-        .pipe (gulpReplace ('(number|$protobuf.Long)', 'string'))
-        .pipe (gulp.dest('./generated/'));
-});
-
-gulp.task('grpc-copy-proto-to-npm', function () {
-    return gulp.src('./server.proto')
-            .pipe(gulp.dest("./npm"));
-});
-
-gulp.task('generate-package.json', function (cb) {
+const generatePackageJson = cb => {
     fs.writeFileSync("npm/package.json", JSON.stringify({
-        name : "@dlghq/server-api-calls-sdk",
-        version : "VERSION",
-        main: "index.js"
+        name : packageJson.name,
+        version : "VERSION"
     }, null, 4));
     
     cb ();
-});
+};
 
-// =============================================================================
-// Build
-// =============================================================================
+const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json');
 
-gulp.task('build',['grpc-copy-proto-to-npm','grpc','generate-package.json']);
-
-// =============================================================================
-// Default
-// =============================================================================
-
-gulp.task('default', gulpSequence('clean','createDirs','build'));
+exports.default = series (
+    createDirs,
+    clean,
+    parallel (
+        generatePackageJson,
+        grpcCopyProtoToNpm,
+        series (
+            grpcCopyProtoToGenerated1,
+            grpcCopyProtoToGenerated2,
+            parallel (
+                grpcP2P,
+                grpcHistory
+            ),
+            grpcReplace,
+            compileTs
+        )
+    )
+);

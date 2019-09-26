@@ -1,290 +1,671 @@
 syntax = "proto3";
 
-package im.dlg.sdk.calls;
-option java_package = "im.dlg.sdk.calls.server.api";
+package im.dlg.sdk.calls.client.p2p.api;
+option java_package = "im.dlg.sdk.calls.client.p2p.api";
 
-/**
- * Сервис P2P звонков
- */
+import "google/protobuf/wrappers.proto";
+
+/* ===============================================================================
+ Main call service
+=============================================================================== */
 service CallService {
-    /**
-     * Подключение с установкой стрима, для передачи на клиента 
-     * сообщений от сервера
-     */
-    rpc connect (stream Empty) returns (stream ServerStreamMessage) {};
-    /**
-     * Создание звонка выполняется в два этапа: createCall создаст структуру на 
-     * сервере и вернет callId, 
-     * которая будет ждать joinCall запрос c callId
-     */
+    
+    /* ===========================================================================
+     Creates stream for receiving messages from server
+    =========================================================================== */
+    rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
+
+    /* ===========================================================================
+     Send notification, that client has received message throw stream in connect method
+    =========================================================================== */
+    rpc ack (AckRequest) returns (AckResponse) {};
+
+    /* ===========================================================================
+     Generate incremented indentifier in call context
+    =========================================================================== */
+    rpc generateId (GenerateIdRequest) returns (GenerateIdResponse) {};
+
+    /* ===========================================================================
+     Create call
+    =========================================================================== */
     rpc createCall (CreateCallRequest) returns (CreateCallResponse) {};
-    /**
-     * Pickup или ответ на входящий звонок 
-     */
+    
+    /* ===========================================================================
+     Transfer call
+    =========================================================================== */
+    rpc transferCall (TransferCallRequest) returns (TransferCallResponse) {};
+
+    /* ===========================================================================
+     Notify server that inbound call is riniging on device
+    =========================================================================== */
+    rpc ringingCall (RingingCallRequest) returns (RingingCallResponse) {};
+
+    /* ===========================================================================
+     Pickup call on current device
+    =========================================================================== */
     rpc answerCall (AnswerCallRequest) returns (AnswerCallResponse) {};
-    /**
-     * Сообщение серверу, что клиент увидел звонок и начал звонить
-     */
-    rpc ringingCall (RingingCallRequest) returns (Empty) {};
-    /**
-     * Передача на сервер SDP + ICE. Звонок стартует как последовательность из createCall и последующими joinCall
-     */
+
+    /* ===========================================================================
+     Hangup call
+    =========================================================================== */
+    rpc disposeCall (DisposeCallRequest) returns (DisposeCallResponse) {};
+
+    /* ===========================================================================
+     Request permission to start renegotiation
+    =========================================================================== */
+    rpc lockCall (LockCallRequest) returns (LockCallResponse) {};
+
+    /* ===========================================================================
+     Send SDP
+    =========================================================================== */
     rpc joinCall (JoinCallRequest) returns (JoinCallResponse) {};
-    /**
-     * Завершение звонка
-     */
-    rpc disposeCall (DisposeCallRequest) returns (Empty) {};
-    /**
-     * Подтверждение получения сообщения от сервера
-     */
-    rpc ack (AckRequest) returns (Empty) {};
+
+    /* ===========================================================================
+     Send ICE
+    =========================================================================== */
+    rpc iceCall (IceCallRequest) returns (IceCallResponse) {};
 }
 
-message Empty {}
-
-message Int64Value {
-  int64 value = 1;
-}
-
-message Int32Value {
-  int32 value = 1;
-}
-
-message StringValue {
-  string value = 1;
-}
-
-/**
- Причина заверщения звонка
- */
-enum DISPOSE_REASON {
-    DISPOSE_REASON_UNKNOWN = 0;
-    SERVER_ERROR = 1;
-    NORMAL = 2;
-    CALLEE_NOT_FOUND = 3;
-    CALLER_DISABLED = 4;
-    CALLEE_DISABLED = 5;
-    NO_ANSWER = 6;
-    BUSY = 7;
-    PICKED_UP = 8;
-    CALL_DOES_NOT_EXISTS = 9;
-    REJECTED = 10;
-    INVALID_IP_RANGE = 11;
-}
-
-/**
- Направление звонка
- */
 enum CALL_DIRECTION {
     CALL_DIRECTION_UNKNOWN = 0;
-    INBOUND = 1;
-    OUTBOUND = 2;
+    CALL_DIRECTION_INBOUND = 1;
+    CALL_DIRECTION_OUTBOUND = 2;
 }
 
-/**
- Статус звонка
- */
+/* ===============================================================================
+ Signalling call state
+=============================================================================== */
 enum CALL_STATE {
     CALL_STATE_UNKNOWN = 0;
-    // Пытаюсь установить соединение с абонентом
-    TRIYNG = 1;
-    // Пока не используется
-    PROGRESS = 2;
-    // Абонент увидел звонок
-    RINGING = 3;
-    // Абонент ответил (медийка еще какое-то время будет подниматься)
-    TALKING = 4;
-    // Разговор завершен
-    FINISHED = 5;
+
+    // Call is not yet delivered to participant
+    CALL_STATE_TRYING = 1;
+
+    // Outbound call is not answered, but has incomming media
+    CALL_STATE_PROGRESS = 2;
+
+    // Call is ringing on device
+    CALL_STATE_RINGING = 3;
+
+    // Participants are connectetd
+    CALL_STATE_TALKING = 4;
+
+    // Call is finished
+    CALL_STATE_FINISHED = 5;
 }
 
-/**
- Настройки ICE - взаимодействия
- */
+/* ===============================================================================
+ Call finished reason
+=============================================================================== */
+enum DISPOSE_REASON {
+    DISPOSE_REASON_UNKNOWN = 0;
+
+    // Some error occured
+    DISPOSE_REASON_ERROR = 1;
+
+    // Request is sent to call that does not exists
+    DISPOSE_REASON_CALL_DOES_NOT_EXISTS = 2;
+
+    // Request is sent to call that is already pickupd by another device
+    DISPOSE_REASON_PICKED_UP = 3;
+
+    // Participants normally finished call
+    DISPOSE_REASON_NORMAL = 4;
+    
+    // Participant transfered call to another participant/call
+    DISPOSE_REASON_TRANSFER = 5;
+
+    // Callee is not found
+    DISPOSE_REASON_CALLEE_NOT_FOUND = 6;
+
+    // Call was not answered
+    DISPOSE_REASON_NO_ANSWER = 7;
+
+    // Callee is busy
+    DISPOSE_REASON_BUSY = 8;
+
+    // Callee rejected call
+    DISPOSE_REASON_REJECTED = 9;
+
+    // Caller is disabled
+    DISPOSE_REASON_CALLER_DISABLED = 10;
+
+    // Callee is disabled
+    DISPOSE_REASON_CALLEE_DISABLED = 11;
+}
+
+/* ===============================================================================
+ Reason to finish incomming call
+=============================================================================== */
+enum HANGUP_REASON {
+    HANGUP_REASON_UNKNOWN = 0;
+
+    // Some error occured
+    HANGUP_REASON_ERROR = 1;
+
+    // Normal finished
+    HANGUP_REASON_NORMAL = 2;
+
+    // Callee is busy
+    HANGUP_REASON_BUSY = 3;
+
+    // Callee rejects call
+    HANGUP_REASON_REJECT = 4;
+}
+
+/* ===============================================================================
+ Always incrementing sequence
+=============================================================================== */
+message SeqModel {
+    int64 a = 1;
+    int64 b = 2;
+}
+
+message SeqValue {
+    SeqModel value = 1;
+}
+
+/* ===============================================================================
+ ICE mode
+=============================================================================== */
 enum ICE_SETTINGS {
     ICE_SETTINGS_UNKNOWN = 0;
-    // только через TURN
-    RELAY = 1;
-    // через TURN и напрямую
-    ALL = 2;
-    // не использовать обмен ICE
-    NONE = 3;
+
+    // Do not send ice to server
+    ICE_SETTINGS_NONE = 1;
+
+    // Use only relay candidates
+    ICE_SETTINGS_RELAY = 2;
+
+    // Use all ice candidates
+    ICE_SETTINGS_ALL = 3;
 }
 
-enum PEER_TYPE {
-    PEER_TYPE_UNKNOWN = 0;
-    USER = 1;
-    GROUP = 2;
-}
+/* ===============================================================================
+ Common model for create and answer call with settings
+=============================================================================== */
+message ConnectToCallSuccessModel {
 
-/**
- Настройки ICE от сервера
- */
-message IceSettingsModel {
+    /* ===========================================================================
+     Ice settings
+    =========================================================================== */
+    message IceSettingsModel {
 
-    message IceServerModel {
-        string username = 1;
-        string password = 2;
-        repeated string urls = 3;
-    }    
-    
-    ICE_SETTINGS settings = 1;
-    repeated IceServerModel iceServers = 2;
-}
+        /* =======================================================================
+        Ice server - turn/stun
+        ======================================================================= */
+        message IceServerModel {
+            string username = 1;
+            string password = 2;
+            repeated string urls = 3;
+        }    
 
-/**
- Структура абонента, отправляемая клиентом
- */
-message ClientAbonentModel {
-    message UserModel {
-        int32 userId = 1;
-        int64 accessHash = 2;
+        ICE_SETTINGS settings = 1;
+        repeated IceServerModel iceServers = 2;
     }
     
-    StringValue name = 1;
-    StringValue nick = 2;
-    StringValue phone = 3;
-    UserModel user = 4;
-}
-
-/**
- Структура абонента, получаемая с сервера
- */
-message ServerAbonentModel {
-    int32 abonentId = 1;
-    ClientAbonentModel abonent = 2;
-}
-
-message SdpModel {
-    string type = 1;
-    string sdp = 2;
-}
-
-/**
- Структура обмена SDP и ICE
- */
-message JoinCallModel {
-
-    message IceCandidateIdModel {
+    message ConnectToCallSuccessFeaturesModel {
+        bool attendedTrasnfer = 1;
+        bool unAttendedTrasnfer = 2;
+    }
     
+    IceSettingsModel iceSettings = 1;
+    ConnectToCallSuccessFeaturesModel features = 2;
+}
+
+/* ===============================================================================
+ SDP exchange
+=============================================================================== */
+message SdpModel {
+    // content
+    string sdp = 1;
+    // type
+    string type = 2;
+}
+
+/* ===============================================================================
+ Info to merge call on client
+=============================================================================== */
+message MergeCallModel {
+    string key = 1;
+    bool merge = 2;
+}
+
+/* ===============================================================================
+ Generate id in call context request
+=============================================================================== */
+message GenerateIdRequest {
+    string callId = 1;
+}
+
+/* ===============================================================================
+ Generate id in call context response
+=============================================================================== */
+message GenerateIdResponse {
+    
+    message GenerateIdResponseSuccessModel {
+        int32 id = 1;
+    }
+    
+    message GenerateIdResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        GenerateIdResponseErrorModel error = 2;
+        GenerateIdResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Create call request
+=============================================================================== */
+message CreateCallRequest {
+    // unique call identifier (UUID)
+    string callId = 1;
+    
+    // participant
+    map<string, string> parameters = 2;
+}
+
+/* ===============================================================================
+ Create call response
+=============================================================================== */
+message CreateCallResponse {
+    
+    message CreateCallResponseSuccessModel {
+        ConnectToCallSuccessModel connect = 1;
+        
+        // call may be merged with inbound call
+        MergeCallModel merge = 2;
+    }
+    
+    message CreateCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        CreateCallResponseErrorModel error = 2;
+        CreateCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Transfer call request
+=============================================================================== */
+message TransferCallRequest {
+
+    // particiapnt wrapper
+    message TransferCallRequestParticipantModel {
+        map<string, string> parameters = 1;
+    }
+    
+    message TrasnferOneOfModel {
+        // transfer to particiapnt (unattended transfer) or call (attended transfer)
+        oneof transfer {
+            string callId = 1;
+            TransferCallRequestParticipantModel participant = 2;
+        }
+    }
+    
+    // unique call identifier (UUID)
+    string callId = 1;
+
+    // call instance id
+    int32 instanceId = 2;
+
+    TrasnferOneOfModel transfer = 3;
+}
+
+/* ===============================================================================
+ Transfer call response
+=============================================================================== */
+message TransferCallResponse {
+    
+    message TransferCallResponseSuccessModel {
+    }
+    
+    message TransferCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        TransferCallResponseErrorModel error = 2;
+        TransferCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Call is rining on device request
+=============================================================================== */
+message RingingCallRequest {
+    string callId = 1;
+}
+
+/* ===============================================================================
+ Call is rining on device response
+=============================================================================== */
+message RingingCallResponse {
+    
+    message RingingCallResponseSuccessModel {
+    }
+    
+    message RingingCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        RingingCallResponseErrorModel error = 2;
+        RingingCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Puckup call on device request
+=============================================================================== */
+message AnswerCallRequest {
+    string callId = 1;
+    
+    // call instance id
+    int32 instanceId = 2;
+}
+
+/* ===============================================================================
+ Puckup call on device response
+=============================================================================== */
+message AnswerCallResponse {
+    
+    message AnswerCallResponseSuccessModel {
+        ConnectToCallSuccessModel connect = 1;
+    }
+    
+    message AnswerCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        AnswerCallResponseErrorModel error = 2;
+        AnswerCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Finish call request
+=============================================================================== */
+message DisposeCallRequest {
+    string callId = 1;
+    
+    // call instance id
+    google.protobuf.Int32Value instanceId = 2;
+    
+    HANGUP_REASON reason = 3;
+}
+
+/* ===============================================================================
+ Finish call response
+=============================================================================== */
+message DisposeCallResponse {
+    
+    message DisposeCallResponseSuccessModel {
+    }
+    
+    message DisposeCallResponseErrorModel {
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        DisposeCallResponseErrorModel error = 2;
+        DisposeCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Request permission to renegotiate request
+=============================================================================== */
+message LockCallRequest {
+    string callId = 1;
+    
+    // call instance id
+    int32 instanceId = 2;
+    
+    // peer connection id
+    int32 peerConnectionId = 3;
+    
+    // session description id
+    int32 sdpId = 4;
+}
+
+/* ===============================================================================
+ Request permission to renegotiate response
+=============================================================================== */
+message LockCallResponse {
+    
+    message LockCallResponseSuccessModel {
+        bool locked = 1;
+    }
+    
+    message LockCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        LockCallResponseErrorModel error = 2;
+        LockCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Send session description request
+=============================================================================== */
+message JoinCallRequest {
+    string callId = 1;
+    
+    // call instance id
+    int32 instanceId = 2;
+    
+    // peer connection id
+    int32 peerConnectionId = 3;
+    
+    // session description id
+    int32 sdpId = 4;
+    
+    // session description
+    SdpModel sdp = 5;
+}
+
+/* ===============================================================================
+ Send session description response
+=============================================================================== */
+message JoinCallResponse {
+    
+    message JoinCallResponseSuccessModel {
+    }
+    
+    message JoinCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        JoinCallResponseErrorModel error = 2;
+        JoinCallResponseSuccessModel success = 3;
+    }
+}
+
+/* ===============================================================================
+ Send ice candidates request
+=============================================================================== */
+message IceCallRequest {
+
+    message IceCallRequestCandidateItemModel {
+
         message IceCandidateModel {
             string candidate = 1;
             string sdpMid = 2;
             int32 sdpMLineIndex = 3;
         }
         
-        string id = 1;
-        IceCandidateModel iceCandidate = 2;
+        // peer connection id
+        int32 peerConnectionId = 1;
+                
+        // session description id
+        int32 sdpId = 2;
+                
+        // ice candidate id
+        int32 iceId = 3;
+                
+        // session description type
+        string sdpType = 4;
+                
+        // ice candidate
+        IceCandidateModel ice = 5;
     }
     
-    string stateId = 1;
+    string callId = 1;
+                
+    // call instance id
     int32 instanceId = 2;
-    int64 callId = 3;
-    string sdpId = 4;
-    SdpModel sdp = 5;
-    repeated IceCandidateIdModel ice = 6;
+    repeated IceCallRequestCandidateItemModel ices = 3;
 }
 
-message DisposeCallModel {
-    string stateId = 1;
-    Int32Value instanceId = 2;
-    int64 callId = 3;
+/* ===============================================================================
+ Send ice candidates response
+=============================================================================== */
+message IceCallResponse {
+    
+    message IceCallResponseSuccessModel {
+    }
+    
+    message IceCallResponseErrorModel {
+        // call is finished/pickuped/not exists
+        DISPOSE_REASON reason = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        IceCallResponseErrorModel error = 2;
+        IceCallResponseSuccessModel success = 3;
+    }
 }
 
+/* ===============================================================================
+ Server message received notification requesat
+=============================================================================== */
 message AckRequest {
-    string stateId = 1;
-    int64 callId = 2;
+    // server message identifier
+    SeqModel seq = 1;
 }
 
-message CreateCallRequest {
-    ClientAbonentModel abonent = 1;
+/* ===============================================================================
+ Server message received notification response
+=============================================================================== */
+message AckResponse {
 }
 
-message CreateCallResponse {
+/* ===============================================================================
+ Open stream request
+=============================================================================== */
+message ConnectRequest {
+}
+
+/* ===============================================================================
+ Open stream response
+=============================================================================== */
+message ConnectResponse {
     
-    message SuccessModel {
-        int64 callId = 1;
-        int32 instanceId = 2;
-        IceSettingsModel iceSettings = 3;
-    }
-    
-    oneof result {
-        SuccessModel success = 1;
-        DISPOSE_REASON disposeReason = 2;
-    }
-}
-message RingingCallRequest {
-    int64 callId = 1;
-}
+    message ConnectResponseServerCallListModel {
 
-message AnswerCallRequest {
-    int64 callId = 1;
-}
-
-message AnswerCallResponse {
-    
-    message SuccessModel {
-        int32 instanceId = 1;
-        IceSettingsModel iceSettings = 2;
-    }
-    
-    oneof result {
-        SuccessModel success = 1; 
-        DISPOSE_REASON disposeReason = 2;
-    }
-}
-
-message JoinCallRequest {
-    JoinCallModel join = 1;
-}
-
-message JoinCallResponse {
-    
-    oneof result {
-        Empty success = 1;
-        DISPOSE_REASON disposeReason = 2;
-    }
-}
-
-message DisposeCallRequest {
-    DisposeCallModel dispose = 1;
-}
-
-message ServerStreamMessage {
-    
-    message ServerDisposeCallModel {
-        DISPOSE_REASON disposeReason = 1;
-        DisposeCallModel dispose = 2;
-    }
-    
-    message ServerCallsModel {
-
-        message ServerCallModel {
+        /* =======================================================================
+         Active call model
+        ======================================================================= */
+        message ConnectResponseServerCallListItemModel {
+            // incrementing call state sequence
             int32 stateId = 1;
-            int64 callId = 2;
-            Int32Value instanceId = 3;
+            
+            // callId
+            string callId = 2;
+            
+            // current instance id
+            google.protobuf.Int32Value instanceId = 3;
+            
+            // signaling state
             CALL_STATE state = 4;
+            
+            // direction
             CALL_DIRECTION direction = 5;
+            
+            // call is/was active on current device
             bool currentDevice = 6;
-            ServerAbonentModel abonent = 7;
-            Int64Value answerDateUTC = 8;
-            bool video = 9;
+            
+            // call was answered at
+            google.protobuf.Int64Value answerDateUTC = 7;
+            
+            // call has video
+            bool video = 8;
+            
+            // call parameters from client or router
+            map<string, string> parameters = 9;
+            
+            // call may be merged with;
+            MergeCallModel merge = 10;
+            
+            google.protobuf.StringValue groupCallId = 11;
         }
         
-        repeated ServerCallModel serverCalls = 1;
+        repeated ConnectResponseServerCallListItemModel calls = 2;
     }
     
-    message PermissionsModel {
-        oneof calls {
-            DISPOSE_REASON disallow = 1;
-            Empty allow = 2;
-        }
+    message ConnectResponseDisposeCallModel {
+        string callId = 1;
+        google.protobuf.Int32Value instanceId = 2;
+        DISPOSE_REASON reason = 3;
     }
     
-    oneof event {
-        JoinCallModel join = 1;
-        ServerDisposeCallModel dispose = 2;
-        ServerCallsModel serverCalls = 3;
-        PermissionsModel permissions = 4;
+    message ConnectResponseJoinCallModel {
+        JoinCallRequest join = 1;
+    }
+    
+    message ConnectResponseIceCallModel {
+        IceCallRequest ice = 1;
+    }
+    
+    message ConnectResponseRenegotiateCallModel {
+        string callId = 1;
+        int32 instanceId = 2;
+        int32 peerConnectionId = 3;
+        google.protobuf.Int32Value sdpId = 4;
+    }
+    
+    // message unique id
+    SeqModel seq = 1;
+    
+    oneof data {
+        // user active calls
+        ConnectResponseServerCallListModel calls = 2;
+        
+        // call was disposed
+        ConnectResponseDisposeCallModel dispose = 3;
+        
+        // call has join to process
+        ConnectResponseJoinCallModel join = 4;
+        
+        // call has ice to process
+        ConnectResponseIceCallModel ice = 5;
+        
+        // call needed to be renegotiated from client
+        ConnectResponseRenegotiateCallModel renegotiate = 6;
     }
 }

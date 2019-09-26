@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package api;
+option java_package = "im.dlg.sdk.calls.client.history.api";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service CallHistoryService {
+    // Удаление записи истории звонков
+    rpc deleteHistory (DeleteHistoryRequest) returns (DeleteHistoryResponse) {};
+    
+    rpc getDiff (GetDiffRequet) returns (GetDiffResponse) {}
+    
+    rpc getPage (GetPageRequest) returns (GetPageResponse) {}
+    
+    rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
+}
+
+message GetPageRequest {
+    Int64Value seq = 1;
+    int32 size = 2;
+}
+
+message GetPageResponse {
+    repeated CallHistoryRecord page = 1;
+    bool hasMore = 2;
+}
+
+message GetDiffRequet {
+    Int64Value seq = 1;
+    int32 size = 2;
+}
+
+message GetDiffResponse {
+    Int64Value seq = 1;
+    
+    repeated string deletedCallId = 2;
+    repeated CallHistoryRecord created = 3;
+}
+
+// Направление звонка
+enum CALL_DIRECTION {
+    CALL_DIRECTION_UNKNOWN = 0;
+    CALL_DIRECTION_INBOUND = 1;
+    CALL_DIRECTION_OUTBOUND = 2;
+}
+
+message CallHistoryRecord {
+    // Структура звонка
+    message Call {
+
+        // Причина завершения
+        message CallResult {
+            
+            // Отменен
+            message CallResultCancelled {
+            }
+
+            // Отклонен
+            message CallResultRejected {
+            }
+
+            // Занято
+            message CallResultBusy {
+            }
+
+            // Завершился после разговора
+            message CallResultFinished {
+            }
+
+            // Переведен
+            message CallResultTransferred {
+            }
+
+            message CallResultOneOf {
+
+                oneof result {
+                    CallResultCancelled cancelled = 1;
+                    CallResultRejected rejected = 2;
+                    CallResultBusy busy = 3;
+                    CallResultFinished finished = 5;
+                    CallResultTransferred transferred = 6;
+                }
+            }
+
+            CallResultOneOf result = 1;
+        }
+        
+        // Идентификатор звонка
+        string callId = 1;
+        
+        // Начат
+        int64 started = 2;
+                
+        int64 duration = 3;
+        
+        // Причина завершения
+        CallResult result = 4;
+    }   
+
+    // Структура участника звонка
+    message CallParticipant {
+        map<string, string> parameters = 1;
+    }
+    
+    // Направление звонка
+    CALL_DIRECTION direction = 1;
+    
+    // Участники звонка
+    repeated CallParticipant participants = 2;
+    
+    // Звонки в свертке
+    repeated Call calls = 3;
+}
+
+message DeleteHistoryRequest {
+    repeated string callId = 1;
+}
+
+message DeleteHistoryResponse {
+    
+}
+
+// Подключение стримом
+message ConnectRequest {
+}
+
+message ConnectResponse {
+
+    message ConnectResponseDeleted {
+        repeated string callId = 1;
+    }
+
+    oneof data {
+        ConnectResponseDeleted deleted = 1;
+        CallHistoryRecord created = 2;
+    }
+}

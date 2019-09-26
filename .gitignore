@@ -5,3 +5,6 @@
 /node_modules/
 /generated/
 /npm/
+/.idea/
+gradle.properties
+/nbproject/private/

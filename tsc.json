@@ -8,9 +8,10 @@
         "moduleResolution" : "node",
         "outDir" : "npm",
         "declaration" : true,
-        "sourceMap" : true
+        "sourceMap" : true,
+        "outDir" : "npm"
     },
-    "files": [
-        "generated/index.ts"
+    "include": [
+        "./generated/*.ts"
     ]
 }
