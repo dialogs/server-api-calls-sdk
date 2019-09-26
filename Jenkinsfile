@@ -215,6 +215,8 @@ pipeline {
                         env
                         echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
                         echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
+                        echo "githubUser=${GITHUB_USER}" >> gradle.properties
+                        echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
                         echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
                         echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
                         gradle properties
