@@ -1,7 +1,5 @@
 @Library('shared-libs') _
 
-def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
-
 pipeline {
     parameters {
             booleanParam(defaultValue: false, description: 'Create release branch', name: 'createRelease')
@@ -117,9 +115,9 @@ pipeline {
                 unstash 'buildNPM'
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
+                        cd npm
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
-                        cd npm
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=latest
                     """
                 }
@@ -148,9 +146,9 @@ pipeline {
                 unstash 'buildNPM'
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
+                        cd npm
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
-                        cd npm
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=RELEASE-latest
                     """
                 }
@@ -167,15 +165,15 @@ pipeline {
             }
         }
         stage("Publish npm shapshot") {
-            // when {
-            //     anyOf {
-            //         expression{env.BRANCH_NAME == 'develop'}
-            //         allOf {
-            //             expression { BRANCH_NAME ==~ /.* }
-            //             triggeredBy cause: "UserIdCause"
-            //         }
-            //     }
-            // }
+            when {
+                anyOf {
+                    expression{env.BRANCH_NAME == 'develop'}
+                    allOf {
+                        expression { BRANCH_NAME ==~ /.* }
+                        triggeredBy cause: "UserIdCause"
+                    }
+                }
+            }
             agent {
                 docker {
                     image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
@@ -239,7 +237,10 @@ pipeline {
             when {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
-                    expression{env.BRANCH_NAME ==~ '.*' &&  env.specificCause != '[]'}
+                    allOf {
+                        expression { BRANCH_NAME ==~ /.* }
+                        triggeredBy cause: "UserIdCause"
+                    }
                 }
             }
             agent {
