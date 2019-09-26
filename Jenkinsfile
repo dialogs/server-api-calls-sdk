@@ -52,10 +52,9 @@ pipeline {
                     sh """
                         echo ${specificCause}
                         env
-                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' package.json
-                        cat package.json
                         npm install
                         npm run-script install
+                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' ./npm/package.json
                     """
                 }
                 stash includes: 'npm/*', name: 'buildNPM'
@@ -181,6 +180,7 @@ pipeline {
             }
             steps {
                 unstash 'buildNPM'
+
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
