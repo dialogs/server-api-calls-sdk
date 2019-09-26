@@ -169,7 +169,7 @@ pipeline {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
                     allOf {
-                        expression { BRANCH_NAME ==~ /.* }
+                        branch '*'
                         triggeredBy cause: "UserIdCause"
                     }
                 }
@@ -238,7 +238,7 @@ pipeline {
                 anyOf {
                     expression{env.BRANCH_NAME == 'develop'}
                     allOf {
-                        expression { BRANCH_NAME ==~ /.* }
+                        branch '*'
                         triggeredBy cause: "UserIdCause"
                     }
                 }
