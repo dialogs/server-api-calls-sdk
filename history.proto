@@ -33,11 +33,10 @@ message GetDiffRequet {
 }
 
 message GetDiffResponse {
-    int64 seq = 1;
+    Int64Value seq = 1;
     
     repeated string deletedCallId = 2;
     repeated CallHistoryRecord created = 3;
-    bool hasMore = 4;
 }
 
 // Направление звонка
