@@ -39,11 +39,20 @@ pipeline {
                 }
             }
             steps {
+                script {
+                    env.RELEASE_STAGE = env.STAGE_NAME
+                    if (env.BRANCH_NAME.startsWith('PR')) {
+                      env.CURRENT_BRANCH = env.CHANGE_BRANCH.replaceAll("/", "-")
+                    } else {
+                      env.CURRENT_BRANCH = env.BRANCH_NAME.replaceAll("/", "-")
+                    }
+                    env.PACKAGE_VERSION = sh(script: "grep 'version' package.json | head -1 | cut -d '\"' -f 4", returnStdout: true).trim() + "-" + env.CURRENT_BRANCH + "-" + env.BUILD_NUMBER
+                }
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
                         echo ${specificCause}
                         env
-                        sed -Ei 's/${env.APP_VERSION}/${env.DEVELOP_VERSION}/g' package.json
+                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' package.json
                         cat package.json
                         npm install
                         npm run-script install
@@ -172,22 +181,11 @@ pipeline {
             }
             steps {
                 unstash 'buildNPM'
-                script {
-                    env.RELEASE_STAGE = env.STAGE_NAME
-                    if (env.BRANCH_NAME.startsWith('PR')) {
-                      env.CURRENT_BRANCH = env.CHANGE_BRANCH.replaceAll("/", "-")
-                    } else {
-                      env.CURRENT_BRANCH = env.BRANCH_NAME.replaceAll("/", "-")
-                    }
-                    env.PACKAGE_VERSION = sh(script: "grep 'version' package.json | head -1 | cut -d '\"' -f 4", returnStdout: true).trim() + "-" + env.CURRENT_BRANCH + "-" + env.BUILD_NUMBER
-                }
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
-                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' package.json
                         npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
                         cd npm
-                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' package.json
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
                 }
