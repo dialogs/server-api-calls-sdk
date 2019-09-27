@@ -30,39 +30,77 @@ pipeline {
                 }
             }
         }
-        stage("Build and test") {
-            agent {
-                docker {
-                    image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
-                }
-            }
-            steps {
-                script {
-                    env.RELEASE_STAGE = env.STAGE_NAME
-                    if (env.BRANCH_NAME.startsWith('PR')) {
-                      env.CURRENT_BRANCH = env.CHANGE_BRANCH.replaceAll("/", "-")
-                    } else {
-                      env.CURRENT_BRANCH = env.BRANCH_NAME.replaceAll("/", "-")
+        stage("Build ant test"){
+            parallel {
+                stage("Build and test") {
+                    agent {
+                        docker {
+                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
+                        }
                     }
-                    env.PACKAGE_VERSION = sh(script: "grep 'version' package.json | head -1 | cut -d '\"' -f 4", returnStdout: true).trim() + "-" + env.CURRENT_BRANCH + "-" + env.BUILD_NUMBER
+                    steps {
+                        script {
+                            env.RELEASE_STAGE = env.STAGE_NAME
+                            if (env.BRANCH_NAME.startsWith('PR')) {
+                            env.CURRENT_BRANCH = env.CHANGE_BRANCH.replaceAll("/", "-")
+                            } else {
+                            env.CURRENT_BRANCH = env.BRANCH_NAME.replaceAll("/", "-")
+                            }
+                            env.PACKAGE_VERSION = sh(script: "grep 'version' package.json | head -1 | cut -d '\"' -f 4", returnStdout: true).trim() + "-" + env.CURRENT_BRANCH + "-" + env.BUILD_NUMBER
+                        }
+                        withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
+                            sh """
+                                env
+                                npm install
+                                npm run-script install
+                                sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' ./npm/package.json
+                            """
+                        }
+                        stash includes: 'npm/*', name: 'buildNPM'
+                    }
+                    post { 
+                        always { 
+                            cleanWs()
+                        }
+                        failure {
+                            script {
+                                env.failedStage = STAGE_NAME
+                            }
+                        }
+                    }
                 }
-                withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
-                    sh """
-                        env
-                        npm install
-                        npm run-script install
-                        sed -Ei 's/VERSION/'${env.PACKAGE_VERSION}'/g' ./npm/package.json
-                    """
-                }
-                stash includes: 'npm/*', name: 'buildNPM'
-            }
-            post { 
-                always { 
-                    cleanWs()
-                }
-                failure {
-                    script {
-                        env.failedStage = STAGE_NAME
+                stage("Build android") {
+                    agent {
+                        docker {
+                            image 'harbor.transmit.im/jnr/jenkins-gradle-runner:v5.5_oracle'
+                        }
+                    }
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME'),
+                                        [$class: 'UsernamePasswordMultiBinding',credentialsId: 'GITHUB_CREDENTIAL_dialog_bot',usernameVariable: 'GITHUB_USER',passwordVariable: 'GITHUB_PASSWORD']]) {
+                            sh """
+                                env
+                                echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
+                                echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
+                                echo "githubUser=${GITHUB_USER}" >> gradle.properties
+                                echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
+                                echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
+                                echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
+                                gradle properties
+                                ./gradlew build
+                            """
+                            stash name: 'gradleBuild', includes: 'build/**'
+                        }
+                    }
+                    post { 
+                        always { 
+                            cleanWs()
+                        }
+                        failure {
+                            script {
+                                env.failedStage = STAGE_NAME
+                            }
+                        }
                     }
                 }
             }
@@ -189,40 +227,6 @@ pipeline {
                         npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
                         npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
-                }
-            }
-            post { 
-                always { 
-                    cleanWs()
-                }
-                failure {
-                    script {
-                        env.failedStage = STAGE_NAME
-                    }
-                }
-            }
-        }
-        stage("Build android") {
-            agent {
-                docker {
-                    image 'harbor.transmit.im/jnr/jenkins-gradle-runner:v5.5_oracle'
-                }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME'),
-                                [$class: 'UsernamePasswordMultiBinding',credentialsId: 'GITHUB_CREDENTIAL_dialog_bot',usernameVariable: 'GITHUB_USER',passwordVariable: 'GITHUB_PASSWORD']]) {
-                    sh """
-                        env
-                        echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
-                        echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
-                        echo "githubUser=${GITHUB_USER}" >> gradle.properties
-                        echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
-                        echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                        echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                        gradle properties
-                        ./gradlew build
-                    """
-                    stash name: 'gradleBuild', includes: 'build/**'
                 }
             }
             post { 
