@@ -41,16 +41,7 @@ pipeline {
             }
             steps {
                 script {
-                    env.PACKAGE_VERSION = sh(script: "grep 'version' package.json | head -1 | cut -d '\"' -f 4", returnStdout: true).trim()
-                }
-                withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                                credentialsId: 'Bitbucket_jenkins_user',
-                                usernameVariable: 'GIT_USERNAME',
-                                passwordVariable: 'GIT_PASSWORD']]) {
-                    sh """
-                        git checkout -b release/${env.PACKAGE_VERSION}
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@bitbucket.transmit.im/scm/calls/server-api-calls-sdk.git release/${env.PACKAGE_VERSION}
-                    """
+                    libCalls.createReleaseBranch()
                 }
             }
             post {
@@ -73,9 +64,7 @@ pipeline {
                         }
                     }
                     steps {
-                        script {
-                            libCalls.npmBuild()
-                        }
+                        libCalls.npmBuild()
                     }
                     post { 
                         always { 
@@ -95,9 +84,7 @@ pipeline {
                         }
                     }
                     steps {
-                        script {
-                            libCalls.gradleBuild()
-                        }
+                        libCalls.gradleBuild()
                     }
                     post { 
                         always { 
@@ -131,15 +118,8 @@ pipeline {
                         }
                     }
                     steps {
-                        unstash 'buildNPM'
-
-                        withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
-                            sh """
-                                cd npm
-                                npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
-                                npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
-                                npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
-                            """
+                        script {
+                            libCalls.publishNPMshapshot()
                         }
                     }
                     post { 
@@ -160,18 +140,7 @@ pipeline {
                         }
                     }
                     steps {
-                        withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                            unstash 'gradleBuild'
-                            sh """
-                                env
-                                echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
-                                echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
-                                echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                gradle properties
-                                ./gradlew publish
-                            """
-                        }
+                        libCalls.publishGradleshapshot()
                     }
                     post { 
                         always { 
@@ -198,14 +167,8 @@ pipeline {
                         }
                     }
                     steps {
-                        unstash 'buildNPM'
-                        withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
-                            sh """
-                                cd npm
-                                npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
-                                npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
-                                npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=latest
-                            """
+                        script {
+                            libCalls.publishNPMmaster()
                         }
                     }
                     post { 
@@ -226,17 +189,8 @@ pipeline {
                         }
                     }
                     steps {
-                        withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                            unstash 'gradleBuild'
-                            sh """
-                                env
-                                echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
-                                echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
-                                echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                gradle properties
-                                ./gradlew publish
-                            """
+                        script {
+                            libCalls.publishGradleMater()
                         }
                     }
                     post { 
@@ -264,14 +218,8 @@ pipeline {
                         }
                     }
                     steps {
-                        unstash 'buildNPM'
-                        withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
-                            sh """
-                                cd npm
-                                npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
-                                npm set //nexus.transmit.im/repository/calls-libraries/:_authToken=${env.jenkinsNexus}
-                                npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=RELEASE-latest
-                            """
+                        script {
+                            libCalls.publishNPMrelease()
                         }
                     }
                     post { 
@@ -292,17 +240,8 @@ pipeline {
                         }
                     }
                     steps {
-                        withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                            unstash 'gradleBuild'
-                            sh """
-                                env
-                                echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
-                                echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
-                                echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                gradle properties
-                                ./gradlew publish
-                            """
+                        script {
+                            libCalls.publishGradleRelease()
                         }
                     }
                     post { 
