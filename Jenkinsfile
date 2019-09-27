@@ -134,7 +134,7 @@ pipeline {
         }
         stage("Publish npm release") {
             when {
-                branch 'release/.*'
+                branch 'release/*'
             }
             agent {
                 docker {
@@ -185,8 +185,9 @@ pipeline {
                 withCredentials([string(credentialsId: 'jenkinsNexus', variable: 'jenkinsNexus')]) {
                     sh """
                         cd npm
+                        npm set registry "https://nexus.transmit.im/repository/calls-libraries/"
                         npm set //registry.npmjs.org/:_authToken=11e4b365-fba5-43d7-9eaf-d0f69e4a9bc5
-                        npm publish --tag=${CURRENT_BRANCH}-latest
+                        npm publish --registry=https://nexus.transmit.im/repository/calls-libraries/ --tag=${CURRENT_BRANCH}-latest
                     """
                 }
             }
@@ -208,11 +209,14 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME'),
+                                [$class: 'UsernamePasswordMultiBinding',credentialsId: 'GITHUB_CREDENTIAL_dialog_bot',usernameVariable: 'GITHUB_USER',passwordVariable: 'GITHUB_PASSWORD']]) {
                     sh """
                         env
                         echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
                         echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
+                        echo "githubUser=${GITHUB_USER}" >> gradle.properties
+                        echo "githubPassword=${GITHUB_PASSWORD}" >> gradle.properties
                         echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
                         echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
                         gradle properties
@@ -238,7 +242,7 @@ pipeline {
                     branch 'develop'
                     allOf {
                         expression{env.BRANCH_NAME != 'master'}
-                        expression{env.BRANCH_NAME != 'release/.*'}
+                        expression{env.BRANCH_NAME != 'release/*'}
                         triggeredBy cause: "UserIdCause"
                     }
                 }
@@ -275,7 +279,7 @@ pipeline {
         }
         stage("Publish android release") {
             when {
-                branch 'release/.*'
+                branch 'release/*'
             }
             agent {
                 docker {
