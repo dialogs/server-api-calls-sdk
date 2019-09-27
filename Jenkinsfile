@@ -64,7 +64,9 @@ pipeline {
                         }
                     }
                     steps {
-                        libCalls.npmBuild()
+                        script {
+                            libCalls.npmBuild()
+                        }
                     }
                     post { 
                         always { 
@@ -84,7 +86,9 @@ pipeline {
                         }
                     }
                     steps {
-                        libCalls.gradleBuild()
+                        script {
+                            libCalls.gradleBuild()
+                        }
                     }
                     post { 
                         always { 
@@ -140,7 +144,9 @@ pipeline {
                         }
                     }
                     steps {
-                        libCalls.publishGradleshapshot()
+                        script {
+                            libCalls.publishGradleshapshot()
+                        }
                     }
                     post { 
                         always { 
