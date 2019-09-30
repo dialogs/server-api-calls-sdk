@@ -144,17 +144,8 @@ pipeline {
                         }
                     }
                     steps {
-                        withCredentials([usernamePassword(credentialsId: 'jenkins_ci_nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                            unstash 'gradleBuild'
-                            sh """
-                                env
-                                echo "mavenUser=${NEXUS_USERNAME}" > gradle.properties
-                                echo "mavenPassword=${NEXUS_PASSWORD}" >> gradle.properties
-                                echo "snapshotsRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                echo "releasesRepoUrl = https://nexus.transmit.im/repository/call-mvn/" >> gradle.properties
-                                gradle properties
-                                ./gradlew publish
-                            """
+                        script {
+                            libCalls.publishGradleshapshot()
                         }
                     }
                     post { 
