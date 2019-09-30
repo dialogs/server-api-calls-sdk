@@ -144,8 +144,12 @@ pipeline {
                         }
                     }
                     steps {
-                        script {
-                            libCalls.publishGradleshapshot()
+                        try {
+                            script {
+                                libCalls.publishGradleshapshot()
+                            }
+                        } catch (e) {
+                            result = "FAIL"
                         }
                     }
                     post { 
