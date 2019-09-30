@@ -137,31 +137,31 @@ pipeline {
                         }
                     }
                 }
-                stage("Publish gradle snapshot") {
-                    agent {
-                        docker {
-                            image 'harbor.transmit.im/jnr/jenkins-gradle-runner:v5.5_oracle'
+                try {
+                    stage("Publish gradle snapshot") {
+                        agent {
+                            docker {
+                                image 'harbor.transmit.im/jnr/jenkins-gradle-runner:v5.5_oracle'
+                            }
                         }
-                    }
-                    steps {
-                        try {
+                        steps {
                             script {
                                 libCalls.publishGradleshapshot()
                             }
-                        } catch (e) {
-                            result = "FAIL"
                         }
-                    }
-                    post { 
-                        always { 
-                            cleanWs()
-                        }
-                        failure {
-                            script {
-                                env.failedStage = STAGE_NAME
+                        post { 
+                            always { 
+                                cleanWs()
+                            }
+                            failure {
+                                script {
+                                    env.failedStage = STAGE_NAME
+                                }
                             }
                         }
                     }
+                } catch (e) {
+                    result = "FAIL"
                 }
             }
         }
