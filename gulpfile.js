@@ -8,7 +8,7 @@ const rx = require ("rxjs/Rx");
 const rxjsGrpc = require('rxjs-grpc/js/cli');
 const exec = require('child_process').exec;
 
-const packageJson = JSON.parse(fs.readFileSync("package.json"));
+const packageJson = JSON.parse(fs.readFileSync("./package.json"));
 
 const execute = (cb, command) => exec(command, function (err, stdout, stderr) {
     console.log(stdout);
@@ -20,16 +20,16 @@ const execute = (cb, command) => exec(command, function (err, stdout, stderr) {
 const createDirs = cb => {
     
     fs.mkdirSync('./generated', {recursive : true});
-    fs.mkdirSync('./npm', {recursive : true});
+    fs.mkdirSync('./build/npm', {recursive: true});
     
     cb ();
 };
 
-const clean = () => gulp.src(['./npm/*', './generated/*'], {read: false}).pipe(gulpClean());
+const clean = () => gulp.src(['./build/*', './generated/*'], {read: false}).pipe(gulpClean());
 
 const grpcCopyProtoToNpm = () => gulp.src('./*.proto')
     .pipe (gulpReplace ('package api;','package im.dlg.sdk.calls.client.history.api;'))
-    .pipe (gulp.dest("./npm"));
+    .pipe (gulp.dest("./build/npm"));
 
 const grpcCopyProtoToGenerated1 = () => gulp.src('./history.proto')
     .pipe (gulpReplace ('package im.dlg.sdk.calls.client.history.api;', 'package api;'))
@@ -90,9 +90,9 @@ const grpcReplace = () => gulp
         .pipe(gulp.dest('./generated/'));
 
 const generatePackageJson = cb => {
-    fs.writeFileSync("npm/package.json", JSON.stringify({
+    fs.writeFileSync("./build/npm/package.json", JSON.stringify({
         name : packageJson.name,
-        version : "VERSION"
+        version : packageJson.version
     }, null, 4));
     
     cb ();
@@ -103,6 +103,7 @@ const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --ext
 exports.default = series (
     createDirs,
     clean,
+    createDirs,
     parallel (
         generatePackageJson,
         grpcCopyProtoToNpm,
