@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-package api;
+package im.dlg.sdk.calls.client.history.api;
 option java_package = "im.dlg.sdk.calls.client.history.api";
+option swift_prefix = "Dialog_";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
@@ -18,7 +19,7 @@ service CallHistoryService {
 }
 
 message GetPageRequest {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     int32 size = 2;
 }
 
@@ -28,12 +29,12 @@ message GetPageResponse {
 }
 
 message GetDiffRequet {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     int32 size = 2;
 }
 
 message GetDiffResponse {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     
     repeated string deletedCallId = 2;
     repeated CallHistoryRecord created = 3;
