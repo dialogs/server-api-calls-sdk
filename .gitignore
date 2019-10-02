@@ -8,3 +8,7 @@
 /.idea/
 gradle.properties
 /nbproject/private/
+/.build/
+/DerivedData
+.swiftpm
+/Sources/DialogCalls-SDK/*
