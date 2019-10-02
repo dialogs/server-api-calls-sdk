@@ -17,28 +17,6 @@ service CallHistoryService {
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
 }
 
-message GetPageRequest {
-    Int64Value seq = 1;
-    int32 size = 2;
-}
-
-message GetPageResponse {
-    repeated CallHistoryRecord page = 1;
-    bool hasMore = 2;
-}
-
-message GetDiffRequet {
-    Int64Value seq = 1;
-    int32 size = 2;
-}
-
-message GetDiffResponse {
-    Int64Value seq = 1;
-    
-    repeated string deletedCallId = 2;
-    repeated CallHistoryRecord created = 3;
-}
-
 // Направление звонка
 enum CALL_DIRECTION {
     CALL_DIRECTION_UNKNOWN = 0;
@@ -87,16 +65,23 @@ message CallHistoryRecord {
             CallResultOneOf result = 1;
         }
         
+        // SEQ звонка
+        int64 seq = 1;
+        
         // Идентификатор звонка
-        string callId = 1;
+        string callId = 2;
         
         // Начат
-        int64 started = 2;
+        int64 started = 3;
                 
-        int64 duration = 3;
+        // Длительность (для не отвеченных - длительность набора/ожидания)
+        int64 duration = 4;
         
         // Причина завершения
-        CallResult result = 4;
+        CallResult result = 5;
+    
+        // Направление звонка
+        CALL_DIRECTION direction = 6;
     }   
 
     // Структура участника звонка
@@ -104,14 +89,33 @@ message CallHistoryRecord {
         map<string, string> parameters = 1;
     }
     
-    // Направление звонка
-    CALL_DIRECTION direction = 1;
-    
     // Участники звонка
     repeated CallParticipant participants = 2;
     
     // Звонки в свертке
     repeated Call calls = 3;
+}
+
+message GetPageRequest {
+    Int64Value seq = 1;
+    int32 size = 2;
+}
+
+message GetPageResponse {
+    repeated CallHistoryRecord page = 1;
+    bool hasMore = 2;
+}
+
+message GetDiffRequet {
+    Int64Value seq = 1;
+    int32 size = 2;
+}
+
+message GetDiffResponse {
+    Int64Value seq = 1;
+    
+    repeated string deletedCallId = 2;
+    repeated CallHistoryRecord created = 3;
 }
 
 message DeleteHistoryRequest {
