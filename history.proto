@@ -66,23 +66,20 @@ message CallHistoryRecord {
             CallResultOneOf result = 1;
         }
         
-        // SEQ звонка
-        int64 seq = 1;
-        
         // Идентификатор звонка
-        string callId = 2;
+        string callId = 1;
         
         // Начат
-        int64 started = 3;
+        int64 started = 2;
                 
         // Длительность (для не отвеченных - длительность набора/ожидания)
-        int64 duration = 4;
+        int64 duration = 3;
         
         // Причина завершения
-        CallResult result = 5;
+        CallResult result = 4;
     
         // Направление звонка
-        CALL_DIRECTION direction = 6;
+        CALL_DIRECTION direction = 5;
     }   
 
     // Структура участника звонка
@@ -103,7 +100,7 @@ message GetPageRequest {
 }
 
 message GetPageResponse {
-    int64 seq = 1;
+    Int64Value seq = 1;
     repeated CallHistoryRecord page = 2;
     bool hasMore = 3;
 }
@@ -114,7 +111,7 @@ message GetDiffRequet {
 }
 
 message GetDiffResponse {
-    int64 seq = 1;
+    Int64Value seq = 1;
     bool hasMore = 2;
     repeated string deletedCallId = 3;
     repeated CallHistoryRecord created = 4;
