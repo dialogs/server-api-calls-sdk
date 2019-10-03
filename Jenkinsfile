@@ -1,4 +1,4 @@
-@Library('shared-libs@callsGroovy') _
+@Library('shared-libs') _
 
 pipeline {
     parameters {
@@ -60,7 +60,7 @@ pipeline {
                 stage("Build and test npm") {
                     agent {
                         docker {
-                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
+                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.3'
                         }
                     }
                     steps {
@@ -117,7 +117,7 @@ pipeline {
                 stage("Publish npm shapshot") {
                     agent {
                         docker {
-                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
+                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.3'
                         }
                     }
                     steps {
@@ -168,7 +168,7 @@ pipeline {
                 stage("Publish npm master") {
                     agent {
                         docker {
-                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
+                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.3'
                         }
                     }
                     steps {
@@ -219,7 +219,7 @@ pipeline {
                 stage("Publish npm release") {
                     agent {
                         docker {
-                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.0'
+                            image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.3'
                         }
                     }
                     steps {
