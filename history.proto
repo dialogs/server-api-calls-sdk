@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-package api;
+package im.dlg.sdk.calls.client.history.api;
 option java_package = "im.dlg.sdk.calls.client.history.api";
+option swift_prefix = "Dialog_";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
@@ -15,28 +16,6 @@ service CallHistoryService {
     rpc getPage (GetPageRequest) returns (GetPageResponse) {}
     
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
-}
-
-message GetPageRequest {
-    Int64Value seq = 1;
-    int32 size = 2;
-}
-
-message GetPageResponse {
-    repeated CallHistoryRecord page = 1;
-    bool hasMore = 2;
-}
-
-message GetDiffRequet {
-    Int64Value seq = 1;
-    int32 size = 2;
-}
-
-message GetDiffResponse {
-    Int64Value seq = 1;
-    
-    repeated string deletedCallId = 2;
-    repeated CallHistoryRecord created = 3;
 }
 
 // Направление звонка
@@ -93,10 +72,14 @@ message CallHistoryRecord {
         // Начат
         int64 started = 2;
                 
+        // Длительность (для не отвеченных - длительность набора/ожидания)
         int64 duration = 3;
         
         // Причина завершения
         CallResult result = 4;
+    
+        // Направление звонка
+        CALL_DIRECTION direction = 5;
     }   
 
     // Структура участника звонка
@@ -104,14 +87,34 @@ message CallHistoryRecord {
         map<string, string> parameters = 1;
     }
     
-    // Направление звонка
-    CALL_DIRECTION direction = 1;
-    
     // Участники звонка
     repeated CallParticipant participants = 2;
     
     // Звонки в свертке
     repeated Call calls = 3;
+}
+
+message GetPageRequest {
+    Int64Value seq = 1;
+    int32 size = 2;
+}
+
+message GetPageResponse {
+    Int64Value seq = 1;
+    repeated CallHistoryRecord page = 2;
+    bool hasMore = 3;
+}
+
+message GetDiffRequet {
+    Int64Value seq = 1;
+    int32 size = 2;
+}
+
+message GetDiffResponse {
+    Int64Value seq = 1;
+    bool hasMore = 2;
+    repeated string deletedCallId = 3;
+    repeated CallHistoryRecord created = 4;
 }
 
 message DeleteHistoryRequest {

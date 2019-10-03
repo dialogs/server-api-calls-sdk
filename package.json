@@ -1,6 +1,6 @@
 {
     "name": "@dlghq/server-api-calls-sdk",
-    "version": "2.3.999",
+    "version": "2.5.1",
     "author": "imd@dlg.im",
     "scripts": {
         "install": "gulp"

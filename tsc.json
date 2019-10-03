@@ -9,7 +9,7 @@
         "outDir" : "npm",
         "declaration" : true,
         "sourceMap" : true,
-        "outDir" : "npm"
+        "outDir" : "build/npm"
     },
     "include": [
         "./generated/*.ts"
