@@ -1,4 +1,4 @@
-@Library('shared-libs@callsGroovy') _
+@Library('shared-libs') _
 
 pipeline {
     parameters {
