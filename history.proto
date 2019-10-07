@@ -113,15 +113,8 @@ message GetDiffRequet {
 message GetDiffResponse {
     Int64Value seq = 1;
     bool hasMore = 2;
-    
-    message GetDiffResponseOneOf {
-        oneof diff {
-            string deletedCallId = 1;
-            CallHistoryRecord created = 2;
-        }
-    }
-    
-    repeated GetDiffResponseOneOf diffs = 3;
+    repeated string deletedCallId = 3;
+    repeated CallHistoryRecord created = 4;
 }
 
 message DeleteHistoryRequest {
