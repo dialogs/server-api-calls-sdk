@@ -98,9 +98,6 @@ const generatePackageJson = cb => {
     cb ();
 };
 
-const copyPackageLockJson = () => gulp.src('./package-lock.json')
-    .pipe (gulp.dest("./build/npm"));
-
 const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json');
 
 exports.default = series (
@@ -108,7 +105,6 @@ exports.default = series (
     clean,
     createDirs,
     parallel (
-        copyPackageLockJson,
         generatePackageJson,
         grpcCopyProtoToNpm,
         series (
