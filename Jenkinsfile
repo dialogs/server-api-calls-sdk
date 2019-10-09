@@ -36,7 +36,7 @@ pipeline {
             }
             agent {
                 docker {
-                    image 'harbor.transmit.im/calls/calls-server-builder:master-22959'
+                    image 'harbor.transmit.im/jnr/jenkins-npm-runner:v10.16.3'
                 }
             }
             steps {
