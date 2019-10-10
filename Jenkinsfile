@@ -105,11 +105,10 @@ pipeline {
         }
         stage("Parallel publish shapshot") {
             when {
-                anyOf {
-                    triggeredBy cause: "UserIdCause"
-                    allOf {
-                        expression{env.BRANCH_NAME != 'master'}
-                        expression{env.BRANCH_NAME != 'release/.*'}
+                not {
+                    anyOf {
+                        branch 'master'
+                        branch 'release/*'
                     }
                 }
             }
