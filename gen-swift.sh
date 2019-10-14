@@ -2,7 +2,7 @@ rm -f -rf ./Sources/DialogCalls-GRPC/
 
 mkdir -p Sources/DialogCalls-GRPC 
 
-./swiftDependency/protoCompiler/protoc server.proto \
+./swiftDependency/protoCompiler/protoc *.proto \
 --plugin=protoc-gen-swift=./swiftDependency/Proto/protoc-gen-swift \
 --plugin=protoc-gen-swiftgrpc=./swiftDependency/GRPC/protoc-gen-swiftgrpc \
 --swift_out=FileNaming=DropPath,Visibility=Public:Sources/DialogCalls-GRPC \

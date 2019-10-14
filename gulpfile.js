@@ -92,14 +92,12 @@ const grpcReplace = () => gulp
 const generatePackageJson = cb => {
     fs.writeFileSync("./build/npm/package.json", JSON.stringify({
         name : packageJson.name,
-        version : packageJson.version
+        version : packageJson.version,
+        author: packageJson.author
     }, null, 4));
     
     cb ();
 };
-
-const copyPackageLockJson = () => gulp.src('./package-lock.json')
-    .pipe (gulp.dest("./build/npm"));
 
 const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json');
 
@@ -108,7 +106,6 @@ exports.default = series (
     clean,
     createDirs,
     parallel (
-        copyPackageLockJson,
         generatePackageJson,
         grpcCopyProtoToNpm,
         series (
