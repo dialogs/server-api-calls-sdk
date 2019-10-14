@@ -19,6 +19,7 @@ const createDirs = cb => {
     
     fs.mkdirSync('./generated', {recursive : true});
     fs.mkdirSync('./build/npm', {recursive: true});
+    fs.mkdirSync('./build/npm2', {recursive: true});
     
     cb ();
 };
