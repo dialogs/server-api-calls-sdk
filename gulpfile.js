@@ -29,15 +29,6 @@ const clean = () => gulp.src(['./build/*', './generated/*'], {read: false}).pipe
 const grpcCopyProtoToGenerated = () => gulp.src('./*.proto')
     .pipe (gulpReplace (/package im.*/g, 'package api;'))
     .pipe (gulp.dest('./generated'));
-    
-
-const grpcCopyProtoToGenerated1 = () => gulp.src('./history.proto')
-    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.history.api;', 'package api;'))
-    .pipe (gulp.dest('./generated'));
-
-const grpcCopyProtoToGenerated2 = () => gulp.src('./server.proto')
-    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.p2p.api;', 'package api;'))
-    .pipe (gulp.dest('./generated'));
 
 const grpcP2P = () => rxjsGrpc.main(['-o', `./generated/p2p.ts`, `./generated/server.proto`]);
 
