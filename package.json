@@ -3,7 +3,7 @@
     "version": "2.5.1",
     "author": "imd@dlg.im",
     "scripts": {
-        "install": "gulp && node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json"
+        "install": "gulp"
     },
     "devDependencies": {
         "gulp": "4.0.2",

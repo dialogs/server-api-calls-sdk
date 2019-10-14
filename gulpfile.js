@@ -90,7 +90,7 @@ const grpcReplace = () => gulp
    
         .pipe(gulp.dest('./generated/'));
 
-const compileTs = cb => execute (cb, 'node node_modules/typescript/bin/tsc --extendedDiagnostics -p ./tsc.json');
+const compileTs = cb => execute (cb, 'node tsc --extendedDiagnostics -p ./tsc.json');
 
 exports.default = series (
     //createDirs,
