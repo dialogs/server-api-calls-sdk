@@ -103,8 +103,8 @@ exports.default = series (
                 grpcP2P,
                 grpcHistory
             ),
-            grpcReplace,
-            compileTs
+            grpcReplace
+            //compileTs
         )
     )
 );
