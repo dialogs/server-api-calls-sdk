@@ -93,9 +93,9 @@ const grpcReplace = () => gulp
 const compileTs = cb => execute (cb, 'node tsc --extendedDiagnostics -p ./tsc.json');
 
 exports.default = series (
-    //createDirs,
-    //clean,
-    //createDirs,
+    createDirs,
+    clean,
+    createDirs,
     parallel (
         series (
             grpcCopyProtoToGenerated,
@@ -103,8 +103,8 @@ exports.default = series (
                 grpcP2P,
                 grpcHistory
             ),
-            grpcReplace
-            //compileTs
+            grpcReplace,
+            compileTs
         )
     )
 );
