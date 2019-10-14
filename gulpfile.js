@@ -1,5 +1,4 @@
 const gulp = require('gulp');
-const gulpClean = require('gulp-clean');
 const gulpReplace = require('gulp-replace');
 const { series, parallel } = require('gulp');
 
@@ -8,23 +7,15 @@ const rx = require ("rxjs/Rx");
 const rxjsGrpc = require('rxjs-grpc/js/cli');
 const exec = require('child_process').exec;
 
+const ts = require('gulp-typescript');
+const tsProject = ts.createProject('./tsc.json');
+
 const execute = (cb, command) => exec(command, function (err, stdout, stderr) {
     console.log(stdout);
     console.error(stderr);
 
     cb(err);
 });
-
-const createDirs = cb => {
-    
-    fs.mkdirSync('./generated', {recursive : true});
-    fs.mkdirSync('./build/npm', {recursive: true});
-    fs.mkdirSync('./build/npm2', {recursive: true});
-    
-    cb ();
-};
-
-const clean = () => gulp.src(['./build/*', './generated/*'], {read: false}).pipe(gulpClean());
 
 const grpcCopyProtoToGenerated = () => gulp.src('./*.proto')
     .pipe (gulpReplace (/package im.*/g, 'package api;'))
@@ -81,21 +72,16 @@ const grpcReplace = () => gulp
    
         .pipe(gulp.dest('./generated/'));
 
-const compileTs = cb => execute (cb, 'node tsc --extendedDiagnostics -p ./tsc.json');
+const compileTs = () => tsProject.src()
+    .pipe(tsProject())
+    .pipe(gulp.dest('./build/npm'));
 
 exports.default = series (
-    createDirs,
-    clean,
-    createDirs,
+    grpcCopyProtoToGenerated,
     parallel (
-        series (
-            grpcCopyProtoToGenerated,
-            parallel (
-                grpcP2P,
-                grpcHistory
-            ),
-            grpcReplace,
-            compileTs
-        )
-    )
+        grpcP2P,
+        grpcHistory
+    ),
+    grpcReplace,
+    compileTs
 );
