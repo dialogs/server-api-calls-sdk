@@ -1,0 +1,14 @@
+/.nb-gradle/
+/.gradle/
+/*.iml
+/build/
+/node_modules/
+/generated/
+/npm/
+/.idea/
+gradle.properties
+/nbproject/private/
+/.build/
+DerivedData
+.swiftpm
+Sources/DialogCalls-GRPC/*

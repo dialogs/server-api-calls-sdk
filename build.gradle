@@ -1,0 +1,117 @@
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'maven-publish'
+
+group = 'im.dlg'
+version = '2.0.0-beta'
+
+def jobId = System.getenv('CI_JOB_ID') ?: 'SNAPSHOT'
+
+if (System.getenv('CI_COMMIT_REF_NAME') == null) {
+    version = version + "-local-" + jobId
+}
+else if (System.getenv('CI_COMMIT_REF_NAME').startsWith ("release/")) {
+    version = version + "-RELEASE"
+}
+else if (System.getenv('CI_COMMIT_REF_NAME') != "master") {
+    version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
+}
+
+
+repositories {
+    maven { 
+        url "https://nexus.transmit.im/repository/maven-all/"
+        credentials {
+            username mavenUser
+            password mavenPassword
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        maven { 
+            url "https://nexus.transmit.im/repository/maven-all/"
+            credentials {
+                username mavenUser
+                password mavenPassword
+            }
+        }
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
+    }
+}
+
+dependencies {
+    compile 'io.grpc:grpc-okhttp:1.17.1'
+    compile 'io.grpc:grpc-protobuf:1.17.1'
+    compile 'io.grpc:grpc-stub:1.17.1'
+
+    protobuf files('./server.proto')
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.6.1"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.17.1'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += 'build/generated/source/proto/main/java'
+            srcDirs += 'build/generated/source/proto/main/grpc'
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        ServerAPICallsSDK(MavenPublication) {
+            artifactId = 'server-api-calls-sdk'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://nexus.transmit.im/repository/release-local/"
+            def snapshotsRepoUrl = "https://nexus.transmit.im/repository/snapshot-local/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username mavenUser
+                password mavenPassword
+            }
+        }
+
+        maven {
+            url = 'https://maven.pkg.github.com/dialogs/dialog-android-platform'
+            credentials {
+                username githubUser
+                password githubPassword
+            }
+        }
+    }
+}
