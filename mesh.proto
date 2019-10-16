@@ -1,0 +1,230 @@
+syntax = "proto3";
+
+package im.dlg.sdk.calls.client.mesh.api;
+option java_package = "im.dlg.sdk.calls.client.mesh.api";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service MeshGroupCallService {
+    rpc ack (AckRequest) returns (AckResponse) {};
+    rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
+    rpc generateId (GenerateIdRequest) returns (GenerateIdResponse) {};
+    rpc answerGroupCall (AnswerGroupCallRequest) returns (AnswerGroupCallResponse) {};
+    rpc createGroupCall (CreateGroupCallRequest) returns (CreateGroupCallResponse) {};
+    rpc hangupGroupCall (HangupGroupCallRequest) returns (HangupGroupCallResponse) {};
+    rpc ringingGroupCall (RingingGroupCallRequest) returns (RingingGroupCallResponse) {};
+    rpc inviteGroupCallParticipant (InviteGroupCallParticipantRequest) returns (InviteGroupCallParticipantResponse) {};
+    rpc disposeGroupCallParticipant (DisposeGroupCallParticipantRequest) returns (DisposeGroupCallParticipantResponse) {};
+}
+
+enum PARTICIPANT_STATE {
+    PARTICIPANT_STATE_UNKNOWN = 0;
+    PARTICIPANT_STATE_INVITED = 1;
+    PARTICIPANT_STATE_RINGING = 2;
+    PARTICIPANT_STATE_ACTIVE = 3;
+    PARTICIPANT_STATE_DISPOSED = 4;
+}
+
+enum PARTICIPANT_DISPOSE_REASON {
+    PARTICIPANT_DISPOSE_REASON_UNKNOWN = 0;
+    PARTICIPANT_DISPOSE_REASON_ERROR = 1;
+    PARTICIPANT_DISPOSE_REASON_BUSY = 2;
+    PARTICIPANT_DISPOSE_REASON_REJECTED = 3;
+    PARTICIPANT_DISPOSE_REASON_CANCELLED = 4;
+    PARTICIPANT_DISPOSE_REASON_NORMAL = 5;
+}
+
+enum HANGUP_REASON {
+    HANGUP_REASON_UNKNOWN = 0;
+    HANGUP_REASON_ERROR = 1;
+    HANGUP_REASON_NORMAL = 2;
+    HANGUP_REASON_BUSY = 3;
+    HANGUP_REASON_REJECT = 4;
+}
+
+message SeqModel {
+    int64 a = 1;
+    int64 b = 2;
+}
+
+message GroupCallModel {
+
+    message GroupCallParticipantStateModel {
+        PARTICIPANT_STATE state = 1;
+        PARTICIPANT_DISPOSE_REASON disposeReason = 2;
+    }
+
+    message GroupCallParticipantModel {
+        int32 stateId = 1;
+        google.protobuf.Int32Value instanceId = 2;
+        string userId = 3;
+        GroupCallParticipantStateModel state = 4;
+    }
+
+    string callId = 1;
+    int32 stateId = 2;
+    bool current = 3;
+    google.protobuf.Int32Value instanceId = 4;
+    GroupCallParticipantStateModel state = 5;
+    repeated GroupCallParticipantModel participants = 6;
+}
+
+message AckRequest {
+    SeqModel seq = 1;
+}
+
+message AckResponse {
+}
+
+message CreateGroupCallRequest {
+    
+    message CreateGroupCallRequestParticipantModel {
+        string userId = 1;
+    }
+    
+    string callId = 1;
+    repeated CreateGroupCallRequestParticipantModel participants = 2;
+}
+
+message CreateGroupCallResponse {
+    
+    message CreateGroupCallResponseSuccessModel {
+        GroupCallModel call = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        CreateGroupCallResponseSuccessModel success = 2;
+    }
+}
+
+message HangupGroupCallRequest {
+    string callId = 1;
+    google.protobuf.Int32Value instanceId = 2;
+    HANGUP_REASON reason = 3;
+}
+
+message HangupGroupCallResponse {
+    
+    message HangupGroupCallResponseSuccessModel {
+        GroupCallModel call = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        HangupGroupCallResponseSuccessModel success = 2;
+        google.protobuf.Empty notExists = 3;
+        GroupCallModel finished = 4;
+    }
+}
+
+message GenerateIdRequest {
+    string callId = 1;
+}
+
+message GenerateIdResponse {
+    
+    message GenerateIdResponseSuccessModel {
+        int32 id = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        GenerateIdResponseSuccessModel success = 2;
+        google.protobuf.Empty notExists = 3;
+        GroupCallModel finished = 4;
+    }
+}
+
+message AnswerGroupCallRequest {
+    string callId = 1;
+    int32 instanceId = 2;
+}
+
+message AnswerGroupCallResponse {
+    
+    message AnswerGroupCallResponseSuccessModel {
+        GroupCallModel call = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        AnswerGroupCallResponseSuccessModel success = 2;
+        google.protobuf.Empty notExists = 3;
+        google.protobuf.Empty pickedUp = 4;
+        GroupCallModel finished = 5;
+    }
+}
+
+message InviteGroupCallParticipantRequest {
+    string callId = 1;
+    string userId = 2;
+}
+
+message InviteGroupCallParticipantResponse {
+    
+    message InviteGroupCallParticipantResponseSuccessModel {
+        GroupCallModel call = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        InviteGroupCallParticipantResponseSuccessModel success = 2;
+        google.protobuf.Empty notExists = 3;
+        GroupCallModel finished = 4;
+    }
+}
+
+message DisposeGroupCallParticipantRequest {
+    string callId = 1;
+    string userId = 2;
+}
+
+message DisposeGroupCallParticipantResponse {
+    
+    message DisposeGroupCallParticipantResponseSuccessModel {
+        GroupCallModel call = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        DisposeGroupCallParticipantResponseSuccessModel success = 2;
+        google.protobuf.Empty notExists = 3;
+        GroupCallModel finished = 4;
+    }
+}
+
+message RingingGroupCallRequest {
+    string callId = 1;
+}
+
+message RingingGroupCallResponse {
+    
+    message RingingGroupCallResponseSuccessModel {
+        GroupCallModel call = 1;
+    }
+    
+    oneof result {
+        string invalidRequest = 1;
+        RingingGroupCallResponseSuccessModel success = 2;
+        google.protobuf.Empty notExists = 3;
+        GroupCallModel finished = 4;
+    }
+}
+
+message ConnectRequest {
+}
+
+message ConnectResponse {
+    message ConnectResponseCallsListModel {
+        repeated GroupCallModel calls = 1;
+    }
+    
+    SeqModel seq = 1;
+
+    oneof data {
+        ConnectResponseCallsListModel calls = 2;
+        GroupCallModel finishedCall = 3;
+    }
+}

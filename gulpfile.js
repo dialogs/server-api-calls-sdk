@@ -28,19 +28,18 @@ const createDirs = cb => {
 const clean = () => gulp.src(['./build/*', './generated/*'], {read: false}).pipe(gulpClean());
 
 const grpcCopyProtoToNpm = () => gulp.src('./*.proto')
-    .pipe (gulpReplace ('package api;','package im.dlg.sdk.calls.client.history.api;'))
     .pipe (gulp.dest("./build/npm"));
-
-const grpcCopyProtoToGenerated1 = () => gulp.src('./history.proto')
-    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.history.api;', 'package api;'))
-    .pipe (gulp.dest('./generated'));
-
-const grpcCopyProtoToGenerated2 = () => gulp.src('./server.proto')
-    .pipe (gulpReplace ('package im.dlg.sdk.calls.client.p2p.api;', 'package api;'))
-    .pipe (gulp.dest('./generated'));
+    
+const grpcCopyProtoToGenerated = () => gulp.src ("./*.proto")    
+    .pipe (gulpReplace (/package im.*/g, 'package api;'))
+    .pipe (gulp.dest("./generated"));
+    
 
 const grpcP2P = () => rxjsGrpc.main(['-o', `./generated/p2p.ts`, `./generated/server.proto`]);
+
 const grpcHistory = () => rxjsGrpc.main(['-o', `./generated/history.ts`, `./generated/history.proto`]);
+
+const grpcMesh = () => rxjsGrpc.main(['-o', `./generated/mesh.ts`, `./generated/mesh.proto`]);
 
 const grpcReplace = () => gulp
         .src(['./generated/*.ts'])
@@ -86,6 +85,19 @@ const grpcReplace = () => gulp
         .pipe(gulpReplace('ICE_SETTINGS_NONE = 1', 'ICE_SETTINGS_NONE = "ICE_SETTINGS_NONE"'))
         .pipe(gulpReplace('ICE_SETTINGS_RELAY = 2', 'ICE_SETTINGS_RELAY = "ICE_SETTINGS_RELAY"'))
         .pipe(gulpReplace('ICE_SETTINGS_ALL = 3', 'ICE_SETTINGS_ALL = "ICE_SETTINGS_ALL"'))
+
+        .pipe(gulpReplace("PARTICIPANT_STATE_UNKNOWN = 0", 'PARTICIPANT_STATE_UNKNOWN = "PARTICIPANT_STATE_UNKNOWN"'))
+        .pipe(gulpReplace("PARTICIPANT_STATE_INVITED = 1", 'PARTICIPANT_STATE_INVITED = "PARTICIPANT_STATE_INVITED"'))
+        .pipe(gulpReplace("PARTICIPANT_STATE_RINGING = 2", 'PARTICIPANT_STATE_RINGING = "PARTICIPANT_STATE_RINGING"'))
+        .pipe(gulpReplace("PARTICIPANT_STATE_ACTIVE = 3", 'PARTICIPANT_STATE_ACTIVE = "PARTICIPANT_STATE_ACTIVE"'))
+        .pipe(gulpReplace("PARTICIPANT_STATE_DISPOSED = 4", 'PARTICIPANT_STATE_DISPOSED = "PARTICIPANT_STATE_DISPOSED"'))
+
+        .pipe(gulpReplace("PARTICIPANT_DISPOSE_REASON_UNKNOWN = 0", 'PARTICIPANT_DISPOSE_REASON_UNKNOWN = "PARTICIPANT_DISPOSE_REASON_UNKNOWN"'))
+        .pipe(gulpReplace("PARTICIPANT_DISPOSE_REASON_ERROR = 1", 'PARTICIPANT_DISPOSE_REASON_ERROR = "PARTICIPANT_DISPOSE_REASON_ERROR"'))
+        .pipe(gulpReplace("PARTICIPANT_DISPOSE_REASON_BUSY = 2", 'PARTICIPANT_DISPOSE_REASON_BUSY = "PARTICIPANT_DISPOSE_REASON_BUSY"'))
+        .pipe(gulpReplace("PARTICIPANT_DISPOSE_REASON_REJECTED = 3", 'PARTICIPANT_DISPOSE_REASON_REJECTED = "PARTICIPANT_DISPOSE_REASON_REJECTED"'))
+        .pipe(gulpReplace("PARTICIPANT_DISPOSE_REASON_CANCELLED = 4", 'PARTICIPANT_DISPOSE_REASON_CANCELLED = "PARTICIPANT_DISPOSE_REASON_CANCELLED"'))
+        .pipe(gulpReplace("PARTICIPANT_DISPOSE_REASON_NORMAL = 5", 'PARTICIPANT_DISPOSE_REASON_NORMAL = "PARTICIPANT_DISPOSE_REASON_NORMAL"'))
    
         .pipe(gulp.dest('./generated/'));
 
@@ -109,11 +121,11 @@ exports.default = series (
         generatePackageJson,
         grpcCopyProtoToNpm,
         series (
-            grpcCopyProtoToGenerated1,
-            grpcCopyProtoToGenerated2,
+            grpcCopyProtoToGenerated,
             parallel (
                 grpcP2P,
-                grpcHistory
+                grpcHistory,
+                grpcMesh
             ),
             grpcReplace,
             compileTs
