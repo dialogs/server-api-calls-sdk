@@ -43,6 +43,14 @@ enum HANGUP_REASON {
     HANGUP_REASON_REJECT = 4;
 }
 
+message ParticipantDisposeReasonValue {
+    PARTICIPANT_DISPOSE_REASON value = 1;
+}
+
+message HangupReasonValue {
+    HANGUP_REASON value = 1;
+}
+
 message SeqModel {
     int64 a = 1;
     int64 b = 2;
@@ -51,23 +59,22 @@ message SeqModel {
 message GroupCallModel {
 
     message GroupCallParticipantStateModel {
-        PARTICIPANT_STATE state = 1;
-        PARTICIPANT_DISPOSE_REASON disposeReason = 2;
+        int32 stateId = 1;
+        PARTICIPANT_STATE state = 2;
+        ParticipantDisposeReasonValue disposeReason = 3;
+        google.protobuf.Int32Value instanceId = 4;
     }
 
     message GroupCallParticipantModel {
-        int32 stateId = 1;
-        google.protobuf.Int32Value instanceId = 2;
-        string userId = 3;
-        GroupCallParticipantStateModel state = 4;
+        string peerId = 1;
+        map<string, string> parameters = 2;
+        GroupCallParticipantStateModel state = 3;
     }
 
     string callId = 1;
-    int32 stateId = 2;
-    bool current = 3;
-    google.protobuf.Int32Value instanceId = 4;
-    GroupCallParticipantStateModel state = 5;
-    repeated GroupCallParticipantModel participants = 6;
+    bool current = 2;
+    GroupCallParticipantStateModel state = 3;
+    repeated GroupCallParticipantModel participants = 4;
 }
 
 message AckRequest {
@@ -78,13 +85,14 @@ message AckResponse {
 }
 
 message CreateGroupCallRequest {
-    
-    message CreateGroupCallRequestParticipantModel {
-        string userId = 1;
+
+    message CreateGroupCallRequestParticipantsModel {
+        string peerId = 1;
+        map<string, string> parameters = 2;
     }
     
     string callId = 1;
-    repeated CreateGroupCallRequestParticipantModel participants = 2;
+    repeated CreateGroupCallRequestParticipantsModel participants = 2;
 }
 
 message CreateGroupCallResponse {
@@ -93,16 +101,25 @@ message CreateGroupCallResponse {
         GroupCallModel call = 1;
     }
     
+    message CreateGroupCallResponseParticipantErrorModel {
+        string peerId = 1;
+        
+        oneof error {
+            google.protobuf.Empty notFound = 2;
+        }
+    }
+    
     oneof result {
         string invalidRequest = 1;
         CreateGroupCallResponseSuccessModel success = 2;
+        CreateGroupCallResponseParticipantErrorModel error = 3;
     }
 }
 
 message HangupGroupCallRequest {
     string callId = 1;
     google.protobuf.Int32Value instanceId = 2;
-    HANGUP_REASON reason = 3;
+    HangupReasonValue reason = 3;
 }
 
 message HangupGroupCallResponse {
@@ -159,7 +176,8 @@ message AnswerGroupCallResponse {
 
 message InviteGroupCallParticipantRequest {
     string callId = 1;
-    string userId = 2;
+    string peerId = 2;
+    map<string, string> parameters = 3;
 }
 
 message InviteGroupCallParticipantResponse {
@@ -173,12 +191,13 @@ message InviteGroupCallParticipantResponse {
         InviteGroupCallParticipantResponseSuccessModel success = 2;
         google.protobuf.Empty notExists = 3;
         GroupCallModel finished = 4;
+        google.protobuf.Empty participantNotFound = 6;
     }
 }
 
 message DisposeGroupCallParticipantRequest {
     string callId = 1;
-    string userId = 2;
+    string peerId = 2;
 }
 
 message DisposeGroupCallParticipantResponse {
