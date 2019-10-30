@@ -95,23 +95,23 @@ message CallHistoryRecord {
 }
 
 message GetPageRequest {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     int32 size = 2;
 }
 
 message GetPageResponse {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     repeated CallHistoryRecord page = 2;
     bool hasMore = 3;
 }
 
 message GetDiffRequet {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     int32 size = 2;
 }
 
 message GetDiffResponse {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     bool hasMore = 2;
     repeated string deletedCallId = 3;
     repeated CallHistoryRecord created = 4;
