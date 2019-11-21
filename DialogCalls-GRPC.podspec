@@ -2,12 +2,12 @@ Pod::Spec.new do |spec|
 
   spec.name     = "DialogCalls-GRPC"
   spec.module_name = "DialogCalls_GRPC"
-  spec.version  = "2.5.0"
+  spec.version  = "2.6.0"
   spec.license  = "Apache License, Version 2.0"
   spec.authors  = { "Dialog contributors" => "info@dlg.im" }
   spec.homepage = "https://dlg.im/"
   spec.summary = "This package contains Dialog's calls gRPC models and services"
-  spec.source = { :git => 'https://bitbucket.transmit.im/projects/CALLS/repos/server-api-calls-sdk.git' }
+  spec.source = { :git => "https://github.com/dialogs/server-api-calls-sdk.git" }
 
   spec.ios.deployment_target = "11.0"
   spec.requires_arc = true
@@ -36,7 +36,7 @@ Pod::Spec.new do |spec|
 
     mkdir -p #{dir}
 
-    #{protoc} #{src}/server.proto \
+    #{protoc} #{src}/*.proto \
         --plugin=#{swiftPlugin} \
         --plugin=#{swiftGrpcPlugin} \
         --swift_out=FileNaming=DropPath,Visibility=Public:#{dir} \
