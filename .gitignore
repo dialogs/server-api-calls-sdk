@@ -9,6 +9,6 @@
 gradle.properties
 /nbproject/private/
 /.build/
-/DerivedData
+DerivedData
 .swiftpm
-/Sources/DialogCalls-SDK/*
+Sources/
