@@ -12,3 +12,4 @@ gradle.properties
 DerivedData
 .swiftpm
 Sources/
+Package.resolved
