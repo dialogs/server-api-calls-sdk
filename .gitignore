@@ -11,4 +11,5 @@ gradle.properties
 /.build/
 DerivedData
 .swiftpm
-Sources/DialogCalls-GRPC/*
+Sources/
+Package.resolved

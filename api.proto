@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+import "mesh.proto";
+import "server.proto";
+import "history.proto";
+
+option swift_prefix = "DialogCallsAPI_";
