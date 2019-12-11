@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 
 service CallHistoryService {
     // Удаление записи истории звонков
-    rpc deleteHistory (DeleteHistoryRequest) returns (DeleteHistoryResponse) {};
+    rpc deleteCall (DeleteCallRequest) returns (DeleteCallResponse) {};
     
     rpc getDiff (GetDiffRequet) returns (GetDiffResponse) {}
     
@@ -25,103 +25,113 @@ enum CALL_DIRECTION {
     CALL_DIRECTION_OUTBOUND = 2;
 }
 
-message CallHistoryRecord {
-    // Структура звонка
-    message Call {
+message DeletedCallModel {
+    string callId = 1;
+    int64 seq = 2;
+}
 
-        // Причина завершения
-        message CallResult {
-            
-            // Отменен
-            message CallResultCancelled {
-            }
-
-            // Отклонен
-            message CallResultRejected {
-            }
-
-            // Занято
-            message CallResultBusy {
-            }
-
-            // Завершился после разговора
-            message CallResultFinished {
-            }
-
-            // Переведен
-            message CallResultTransferred {
-            }
-
-            message CallResultOneOf {
-
-                oneof result {
-                    CallResultCancelled cancelled = 1;
-                    CallResultRejected rejected = 2;
-                    CallResultBusy busy = 3;
-                    CallResultFinished finished = 5;
-                    CallResultTransferred transferred = 6;
-                }
-            }
-
-            CallResultOneOf result = 1;
-        }
-        
-        // Идентификатор звонка
-        string callId = 1;
-        
-        // Начат
-        int64 started = 2;
-                
-        // Длительность (для не отвеченных - длительность набора/ожидания)
-        int64 duration = 3;
-        
-        // Причина завершения
-        CallResult result = 4;
-    
-        // Направление звонка
-        CALL_DIRECTION direction = 5;
-    }   
+message CreatedCallModel {
 
     // Структура участника звонка
-    message CallParticipant {
+    message CallParticipantModel {
         map<string, string> parameters = 1;
     }
     
-    // Участники звонка
-    repeated CallParticipant participants = 2;
+    // Причина завершения
+    message CallResultModel {
+
+        // Отменен
+        message CallResultCancelled {
+        }
+
+        // Отклонен
+        message CallResultRejected {
+        }
+
+        // Занято
+        message CallResultBusy {
+        }
+
+        // Завершился после разговора
+        message CallResultFinished {
+        }
+
+        // Переведен
+        message CallResultTransferred {
+        }
+
+        message CallResultOneOf {
+
+            oneof result {
+                CallResultCancelled cancelled = 1;
+                CallResultRejected rejected = 2;
+                CallResultBusy busy = 3;
+                CallResultFinished finished = 5;
+                CallResultTransferred transferred = 6;
+            }
+        }
+
+        CallResultOneOf result = 1;
+    }
+
+    // SEQ
+    int64 seq = 1;
+
+    // Идентификатор звонка
+    string callId = 2;
+
+    // Начат
+    int64 started = 3;
+
+    // Длительность (для не отвеченных - длительность набора/ожидания)
+    int64 duration = 4;
+
+    // Причина завершения
+    CallResultModel result = 5;
+
+    // Направление звонка
+    CALL_DIRECTION direction = 6;
     
-    // Звонки в свертке
-    repeated Call calls = 3;
+    // Участники звонка
+    repeated CallParticipantModel participants = 7;
 }
 
 message GetPageRequest {
-    Int64Value seq = 1;
-    int32 size = 2;
+    message GetPageRequestFromModel {
+        int64 seq = 1;
+        int64 date = 2;
+    }
+    
+    int32 size = 1;
+    GetPageRequestFromModel from = 2;
 }
 
 message GetPageResponse {
-    Int64Value seq = 1;
-    repeated CallHistoryRecord page = 2;
-    bool hasMore = 3;
+    repeated CreatedCallModel calls = 1;
 }
 
 message GetDiffRequet {
     Int64Value seq = 1;
-    int32 size = 2;
+    int32 pageSize = 2;
 }
 
 message GetDiffResponse {
-    Int64Value seq = 1;
-    bool hasMore = 2;
-    repeated string deletedCallId = 3;
-    repeated CallHistoryRecord created = 4;
+    message GetDiffResponseDiffModel {
+        repeated DeletedCallModel deletedCalls = 1;
+        repeated CreatedCallModel createdCalls = 2;
+    }
+    
+    oneof response {
+        GetDiffResponseDiffModel diff = 1;
+        GetPageResponse page = 2;
+    }
 }
 
-message DeleteHistoryRequest {
+message DeleteCallRequest {
     repeated string callId = 1;
 }
 
-message DeleteHistoryResponse {
+message DeleteCallResponse {
     
 }
 
@@ -130,13 +140,8 @@ message ConnectRequest {
 }
 
 message ConnectResponse {
-
-    message ConnectResponseDeleted {
-        repeated string callId = 1;
-    }
-
     oneof data {
-        ConnectResponseDeleted deleted = 1;
-        CallHistoryRecord created = 2;
+        DeletedCallModel deletedCall = 1;
+        CreatedCallModel createdCall = 2;
     }
 }
