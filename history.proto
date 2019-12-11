@@ -111,7 +111,7 @@ message GetPageResponse {
 }
 
 message GetDiffRequet {
-    Int64Value seq = 1;
+    google.protobuf.Int64Value seq = 1;
     int32 pageSize = 2;
 }
 
