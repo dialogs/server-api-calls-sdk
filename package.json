@@ -12,6 +12,6 @@
         "rxjs": "6.5.3",
         "rxjs-compat": "6.5.3",
         "rxjs-grpc": "0.2.4",
-        "typescript": "3.6.4"
+        "typescript": "3.7.3"
     }
 }
