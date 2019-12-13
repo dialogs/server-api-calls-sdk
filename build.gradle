@@ -3,19 +3,22 @@ apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'
 
 group = 'im.dlg'
-version = '2.0.0-beta'
+def version = System.getenv('version')
 
 def jobId = System.getenv('BUILD_NUMBER') ?: 'SNAPSHOT'
+if (version == null) {
+  if (System.getenv('BRANCH_NAME') == null) {
+      version = version + "-local-" + jobId
+  }
+  else if (System.getenv('BRANCH_NAME').startsWith ("release/")) {
+      version = version + "-RELEASE"
+  }
+//  else if (System.getenv('BRANCH_NAME') != "master") {
+//      version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
+//  }
+}
 
-if (System.getenv('CI_COMMIT_REF_NAME') == null) {
-    version = version + "-local-" + jobId
-}
-else if (System.getenv('CI_COMMIT_REF_NAME').startsWith ("release/")) {
-    version = version + "-RELEASE"
-}
-else if (System.getenv('CI_COMMIT_REF_NAME') != "master") {
-    version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
-}
+
 
 
 repositories {
