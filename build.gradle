@@ -5,7 +5,7 @@ apply plugin: 'maven-publish'
 group = 'im.dlg'
 version = '2.0.0-beta'
 
-def jobId = System.getenv('CI_JOB_ID') ?: 'SNAPSHOT'
+def jobId = System.getenv('BUILD_NUMBER') ?: 'SNAPSHOT'
 
 if (System.getenv('CI_COMMIT_REF_NAME') == null) {
     version = version + "-local-" + jobId
