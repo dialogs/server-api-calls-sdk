@@ -3,9 +3,9 @@ apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'
 
 group = 'im.dlg'
-def version = System.getenv('version')
-
+def version = System.getenv('version') ?: System.getenv('PACKAGE_VERSION') ?: 'dev'
 def jobId = System.getenv('BUILD_NUMBER') ?: 'SNAPSHOT'
+
 if (version == null) {
   if (System.getenv('BRANCH_NAME') == null) {
       version = version + "-local-" + jobId
@@ -52,6 +52,7 @@ dependencies {
     compile 'io.grpc:grpc-stub:1.17.1'
 
     protobuf files('./server.proto')
+    protobuf files('./history.proto')
 }
 
 protobuf {
