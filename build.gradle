@@ -17,6 +17,8 @@ if (version == null) {
 //      version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
 //  }
 }
+else { version=version
+}
 
 
 
