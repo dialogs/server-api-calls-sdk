@@ -94,6 +94,9 @@ message CreatedCallModel {
     
     // Участники звонка
     repeated CallParticipantModel participants = 7;
+    
+    // Признак видеозвонка
+    bool isVideo = 8;
 }
 
 message GetPageRequest {
