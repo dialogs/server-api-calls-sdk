@@ -1,7 +1,9 @@
 /.nb-gradle/
 /.gradle/
+/?/
 /*.iml
 /build/
+/dist/
 /node_modules/
 /generated/
 /npm/
