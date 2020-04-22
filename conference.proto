@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package im.dlg.sdk.calls.client.conference.api;
+option java_package = "im.dlg.sdk.calls.client.conference.api";
+option swift_prefix = "Dialog_";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service CallConferenceService {
+    rpc get (GetConferenceRequest) returns (ConferenceResponse) {};
+    rpc create (CreateConferenceRequest) returns (ConferenceResponse) {};
+    rpc update (UpdateConferenceRequest) returns (ConferenceResponse) {};
+}
+
+message GetConferenceRequest {
+    string id = 1;
+}
+
+message CreateConferenceRequest {
+    google.protobuf.Int64Value startAt = 1;
+    int64 endAt = 2;
+    string title = 3;
+}
+
+message UpdateConferenceRequest {
+    string id = 1;
+    google.protobuf.Int64Value startAt = 2;
+    google.protobuf.Int64Value endAt = 3;
+    google.protobuf.StringValue title = 4;
+}
+
+message ConferenceResponse {
+    message ConferenceModel {
+        string id = 1;
+        int64 startAt = 2;
+        int64 endAt = 3;
+        string dialLink = 4;
+        string title = 5;
+    }
+
+    message ErrorModel {
+        int32 code = 1;
+        string message = 2;
+    }
+
+    oneof response {
+        ConferenceModel success = 1;
+        ErrorModel error = 2;
+    }
+}

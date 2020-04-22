@@ -3,5 +3,6 @@ syntax = "proto3";
 import "mesh.proto";
 import "server.proto";
 import "history.proto";
+import "conference.proto";
 
 option swift_prefix = "DialogCallsAPI_";

@@ -41,6 +41,8 @@ const grpcHistory = () => rxjsGrpc.main(['-o', `./generated/history.ts`, `./gene
 
 const grpcMesh = () => rxjsGrpc.main(['-o', `./generated/mesh.ts`, `./generated/mesh.proto`]);
 
+const grpcConference = () => rxjsGrpc.main(['-o', `./generated/conference.ts`, `./generated/conference.proto`]);
+
 const grpcReplace = () => gulp
         .src(['./generated/*.ts'])
         
@@ -125,7 +127,8 @@ exports.default = series (
             parallel (
                 grpcP2P,
                 grpcHistory,
-                grpcMesh
+                grpcMesh,
+                grpcConference
             ),
             grpcReplace,
             compileTs
