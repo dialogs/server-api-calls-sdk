@@ -11,32 +11,45 @@ service CallConferenceService {
     rpc get (GetConferenceRequest) returns (ConferenceResponse) {};
     rpc create (CreateConferenceRequest) returns (ConferenceResponse) {};
     rpc update (UpdateConferenceRequest) returns (ConferenceResponse) {};
+    rpc delete (DeleteConferenceRequest) returns (ConferenceResponse) {};
 }
 
 message GetConferenceRequest {
-    string id = 1;
+    int64 id = 1;
 }
 
 message CreateConferenceRequest {
-    google.protobuf.Int64Value startAt = 1;
-    int64 endAt = 2;
-    string title = 3;
+    int32 groupId = 1;
+    google.protobuf.Int64Value startsIn = 2;
+    google.protobuf.Int64Value duration = 3;
+    ConferenceType conferenceType = 4;
 }
 
 message UpdateConferenceRequest {
-    string id = 1;
-    google.protobuf.Int64Value startAt = 2;
-    google.protobuf.Int64Value endAt = 3;
-    google.protobuf.StringValue title = 4;
+    int64 id = 1;
+    google.protobuf.Int32Value groupId = 2;
+    google.protobuf.Int64Value startsIn = 3;
+    google.protobuf.Int64Value duration = 4;
+    ConferenceType conferenceType = 5;
+}
+
+message DeleteConferenceRequest {
+    int64 id = 1;
+}
+
+enum ConferenceType {
+    TCS = 0;
+    VCS = 1;
 }
 
 message ConferenceResponse {
     message ConferenceModel {
-        string id = 1;
-        int64 startAt = 2;
-        int64 endAt = 3;
-        string dialLink = 4;
-        string title = 5;
+        int64 id = 1;
+        int32 groupId = 2;
+        int64 startAt = 3;
+        int64 endAt = 4;
+        string dialLink = 5;
+        ConferenceType conferenceType = 6;
     }
 
     message ErrorModel {
