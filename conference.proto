@@ -15,7 +15,7 @@ service CallConferenceService {
 }
 
 message GetConferenceRequest {
-    int64 id = 1;
+    int32 groupId = 1;
 }
 
 message CreateConferenceRequest {
@@ -26,15 +26,14 @@ message CreateConferenceRequest {
 }
 
 message UpdateConferenceRequest {
-    int64 id = 1;
-    google.protobuf.Int32Value groupId = 2;
-    google.protobuf.Int64Value startsIn = 3;
-    google.protobuf.Int64Value duration = 4;
-    ConferenceType conferenceType = 5;
+    int32 groupId = 1;
+    google.protobuf.Int64Value startsIn = 2;
+    google.protobuf.Int64Value duration = 3;
+    ConferenceType conferenceType = 4;
 }
 
 message DeleteConferenceRequest {
-    int64 id = 1;
+    int32 groupId = 1;
 }
 
 enum ConferenceType {
