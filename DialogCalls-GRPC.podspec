@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
   spec.name     = "DialogCalls-GRPC"
   spec.module_name = "DialogCalls_GRPC"
-  spec.version  = "2.15.0"
+  spec.version  = "2.16.0"
   spec.license  = "Apache License, Version 2.0"
   spec.authors  = { "Dialog contributors" => "info@dlg.im" }
   spec.homepage = "https://dlg.im/"
