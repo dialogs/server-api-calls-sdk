@@ -11,11 +11,15 @@ service CallHistoryService {
     // Удаление записи истории звонков
     rpc deleteCall (DeleteCallRequest) returns (DeleteCallResponse) {};
     
-    rpc getDiff (GetDiffRequet) returns (GetDiffResponse) {}
+    rpc getDiff (GetDiffRequet) returns (GetDiffResponse) {};
     
-    rpc getPage (GetPageRequest) returns (GetPageResponse) {}
+    rpc getPage (GetPageRequest) returns (GetPageResponse) {};
     
     rpc connect (stream ConnectRequest) returns (stream ConnectResponse) {};
+
+    rpc markViewed (MarkViewedRequest) returns (MarkViewedResponse) {};
+
+    rpc getMissedCallsCount (GetMissedCallsCountRequest) returns (GetMissedCallsCountResponse) {};
 }
 
 // Направление звонка
@@ -147,4 +151,20 @@ message ConnectResponse {
         DeletedCallModel deletedCall = 1;
         CreatedCallModel createdCall = 2;
     }
+}
+
+message MarkViewedRequest {
+
+}
+
+message MarkViewedResponse {
+
+}
+
+message GetMissedCallsCountRequest {
+
+}
+
+message GetMissedCallsCountResponse {
+    int32 missedCallsCount = 1;
 }
