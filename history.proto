@@ -20,6 +20,8 @@ service CallHistoryService {
     rpc markViewed (MarkViewedRequest) returns (MarkViewedResponse) {};
 
     rpc getMissedCallsCount (GetMissedCallsCountRequest) returns (GetMissedCallsCountResponse) {};
+
+    rpc searchCalls (SearchCallsRequest) returns (GetPageResponse) {};
 }
 
 // Направление звонка
@@ -167,4 +169,8 @@ message GetMissedCallsCountRequest {
 
 message GetMissedCallsCountResponse {
     int32 missedCallsCount = 1;
+}
+
+message SearchCallsRequest {
+    string search = 1;
 }
