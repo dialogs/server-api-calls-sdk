@@ -152,6 +152,7 @@ message ConnectResponse {
     oneof data {
         DeletedCallModel deletedCall = 1;
         CreatedCallModel createdCall = 2;
+        GetMissedCallsCountResponse getMissedCallsCountResponse = 3;
     }
 }
 
@@ -169,6 +170,7 @@ message GetMissedCallsCountRequest {
 
 message GetMissedCallsCountResponse {
     int32 missedCallsCount = 1;
+    int64 modified = 2;
 }
 
 message SearchCallsRequest {
