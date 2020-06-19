@@ -9,6 +9,7 @@ import "google/protobuf/empty.proto";
 
 service CallConferenceService {
     rpc get (GetConferenceRequest) returns (ConferenceResponse) {};
+    rpc getByConferenceId (GetByConferenceIdRequest) returns (ConferenceResponse) {};
     rpc create (CreateConferenceRequest) returns (ConferenceResponse) {};
     rpc update (UpdateConferenceRequest) returns (ConferenceResponse) {};
     rpc delete (DeleteConferenceRequest) returns (ConferenceResponse) {};
@@ -16,6 +17,10 @@ service CallConferenceService {
 
 message GetConferenceRequest {
     int32 groupId = 1;
+}
+
+message GetByConferenceIdRequest {
+    int64 conferenceId = 1;
 }
 
 message CreateConferenceRequest {
