@@ -47,7 +47,7 @@ if (version == null) {
 
 ext {
     // bintrayUser = "deminnsk"
-    // bintrayPassword = "255a55ef7d7e701d96963c2933ee67862c5d928e"
+    // bintrayPassword = ""
     artifactId = 'server-api-calls-sdk'
     libraryDescription = 'calls api'
 }
