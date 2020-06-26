@@ -1,36 +1,3 @@
-apply plugin: 'java'
-apply plugin: 'com.google.protobuf'
-apply plugin: 'maven-publish'
-
-group = 'im.dlg'
-version = System.getenv('version') ?: System.getenv('PACKAGE_VERSION')
-def jobId = System.getenv('BUILD_NUMBER') ?: 'SNAPSHOT'
-
-if (version == null) {
-  if (System.getenv('BRANCH_NAME') == null) {
-      version = version + "-local-" + jobId
-  }
-  else if (System.getenv('BRANCH_NAME').startsWith ("release/")) {
-      version = version + "-RELEASE"
-  }
-//  else if (System.getenv('BRANCH_NAME') != "master") {
-//      version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
-//  }
-}
-
-
-
-
-repositories {
-    maven { 
-        url "https://nexus.transmit.im/repository/maven-all/"
-        credentials {
-            username mavenUser
-            password mavenPassword
-        }
-    }
-}
-
 buildscript {
     repositories {
         maven { 
@@ -46,6 +13,57 @@ buildscript {
     }
 }
 
+plugins {
+    id 'net.researchgate.release' version '2.8.0'
+    id "com.jfrog.bintray" version "1.8.4"
+}
+
+
+
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+
+group = 'im.dlg'
+version = '2.19.0'//System.getenv('version') ?: System.getenv('PACKAGE_VERSION')
+
+
+def jobId = System.getenv('BUILD_NUMBER') ?: 'SNAPSHOT'
+
+if (version == null) {
+  if (System.getenv('BRANCH_NAME') == null) {
+      version = version + "-local-" + jobId
+  }
+  else if (System.getenv('BRANCH_NAME').startsWith ("release/")) {
+      version = version + "-RELEASE"
+  }
+//  else if (System.getenv('BRANCH_NAME') != "master") {
+//      version = version + '-' + System.getenv('CI_COMMIT_REF_SLUG') + '-' + jobId
+//  }
+}
+
+ext {
+    // bintrayUser = "deminnsk"
+    // bintrayPassword = "255a55ef7d7e701d96963c2933ee67862c5d928e"
+    artifactId = 'server-api-calls-sdk'
+    libraryDescription = 'calls api'
+}
+
+
+repositories {
+    maven { 
+        url "https://nexus.transmit.im/repository/maven-all/"
+        credentials {
+            username mavenUser
+            password mavenPassword
+        }
+    }
+}
+
+
 dependencies {
     compile 'io.grpc:grpc-okhttp:1.17.1'
     compile 'io.grpc:grpc-protobuf:1.17.1'
@@ -53,6 +71,7 @@ dependencies {
 
     protobuf files('./server.proto')
     protobuf files('./history.proto')
+    protobuf files('./conference.proto')
 }
 
 protobuf {
@@ -71,6 +90,8 @@ protobuf {
     }
 }
 
+afterReleaseBuild.dependsOn bintrayUpload
+
 sourceSets {
     main {
         java {
@@ -79,6 +100,8 @@ sourceSets {
         }
     }
 }
+
+
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -90,32 +113,75 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+
+
 publishing {
     publications {
-        ServerAPICallsSDK(MavenPublication) {
-            artifactId = 'server-api-calls-sdk'
+        maven(MavenPublication) {
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
+            groupId group
+            artifactId artifactId
+            version version
         }
     }
-    repositories {
-        maven {
-            def releasesRepoUrl = "https://nexus.transmit.im/repository/release-local/"
-            def snapshotsRepoUrl = "https://nexus.transmit.im/repository/snapshot-local/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username mavenUser
-                password mavenPassword
-            }
-        }
+}
 
-        maven {
-            url = 'https://maven.pkg.github.com/dialogs/dialog-android-platform'
-            credentials {
-                username githubUser
-                password githubPassword
+bintray {
+    user = bintrayUser
+    key = bintrayPassword
+    override = false
+    configurations = ['archives']
+
+    pkg {
+        userOrg = 'dialog'
+        repo = 'maven'
+        name = artifactId
+        desc = libraryDescription
+        websiteUrl = 'https://dlg.im'
+        vcsUrl = 'https://github.com/dialogs/server-api-calls-sdk'
+        licenses = ["MIT"]
+        // issueTrackerUrl = issueTrackerUrl
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                if (hasProperty('bintrayGpgPassword')) {
+                    bintray.pkg.version.gpg.passphrase = bintrayGpgPassword
+                }
             }
         }
     }
 }
+
+
+// publishing {
+//     publications {
+//         ServerAPICallsSDK(MavenPublication) {
+//             artifactId = 'server-api-calls-sdk'
+//             from components.java
+//             artifact sourcesJar
+//             artifact javadocJar
+//         }
+//     }
+//     repositories {
+//         maven {
+//             def releasesRepoUrl = "https://nexus.transmit.im/repository/release-local/"
+//             def snapshotsRepoUrl = "https://nexus.transmit.im/repository/snapshot-local/"
+//             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+//             credentials {
+//                 username mavenUser
+//                 password mavenPassword
+//             }
+//         }
+
+//         maven {
+//             url = 'https://maven.pkg.github.com/dialogs/dialog-android-platform'
+//             credentials {
+//                 username githubUser
+//                 password githubPassword
+//             }
+//         }
+//     }
+// }
