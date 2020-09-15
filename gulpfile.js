@@ -43,6 +43,8 @@ const grpcMesh = () => rxjsGrpc.main(['-o', `./generated/mesh.ts`, `./generated/
 
 const grpcConference = () => rxjsGrpc.main(['-o', `./generated/conference.ts`, `./generated/conference.proto`]);
 
+const grpcConferenceService = () => rxjsGrpc.main(['-o', `./generated/conferenceService.ts`, `./generated/conferenceService.proto`]);
+
 const grpcReplace = () => gulp
         .src(['./generated/*.ts'])
         
@@ -128,7 +130,8 @@ exports.default = series (
                 grpcP2P,
                 grpcHistory,
                 grpcMesh,
-                grpcConference
+                grpcConference,
+                grpcConferenceService
             ),
             grpcReplace,
             compileTs
