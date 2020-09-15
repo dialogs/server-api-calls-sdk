@@ -49,10 +49,8 @@ message ConnectRequest {
 }
 
 message ConnectResponse {
-    oneof data {
-        string id = 1;
-        bool deleted = 2;
-    }
+    string id = 1;
+    bool deleted = 2;
 }
 
 enum ConferenceType {
