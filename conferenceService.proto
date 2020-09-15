@@ -46,6 +46,8 @@ message GetConnectorParametersResponse {
 }
 
 message ConnectRequest {
+    string id = 1;
+    bool deleted = 2;
 }
 
 message ConnectResponse {
