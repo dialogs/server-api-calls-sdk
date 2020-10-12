@@ -22,6 +22,7 @@ message CreateConferenceRequest {
     google.protobuf.Int64Value startTimeMillis = 3;
     google.protobuf.Int64Value endTimeMillis = 4;
     google.protobuf.Int32Value groupId = 5;
+    google.protobuf.StringValue email = 6;
 }
 
 message UpdateConferenceRequest {
@@ -46,13 +47,13 @@ message GetConnectorParametersResponse {
 }
 
 message ConnectRequest {
-    string id = 1;
-    bool deleted = 2;
 }
 
 message ConnectResponse {
-    string id = 1;
-    bool deleted = 2;
+    oneof data {
+        ConferenceModel conference = 1;
+    }
+    google.protobuf.StringValue eventName = 2;
 }
 
 enum ConferenceType {
@@ -65,25 +66,26 @@ enum Provider {
     Polycom = 1;
     Zoom = 2;
     VideoMost = 3;
-    Other = 4;
+    TrueConf = 4;
+    Other = 5;
 }
 
 message ConferenceModel {
     string id = 1;
     string title = 2;
-    google.protobuf.StringValue schedule = 3;
+    string schedule = 3;
     int64 startTimeMillis = 4;
     int64 endTimeMillis = 5;
     Provider provider = 6;
     ConferenceType conferenceType = 7;
-    google.protobuf.Int32Value groupId = 8;
+    int32 groupId = 8;
 
     oneof linkType {
         string sip = 9;
         string externalLink = 10;
     }
 
-    google.protobuf.BoolValue deleted = 11;
+    bool deleted = 11;
 }
 
 message ConferenceResponse {
