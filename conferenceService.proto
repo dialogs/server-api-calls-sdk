@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package im.dlg.sdk.calls.client.conference.api;
-option java_package = "im.dlg.sdk.calls.client.conference.api";
+option java_package = "im.dlg.sdk.calls.client.conferenceService.api";
 option swift_prefix = "Dialog_";
 
 import "google/protobuf/wrappers.proto";
