@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package im.dlg.sdk.calls.client.conference.api;
+package im.dlg.sdk.calls.client.conferenceService.api;
 option java_package = "im.dlg.sdk.calls.client.conferenceService.api";
 option swift_prefix = "Dialog_";
 
