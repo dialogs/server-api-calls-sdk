@@ -4,5 +4,6 @@ import "mesh.proto";
 import "server.proto";
 import "history.proto";
 import "conference.proto";
+import "conferenceService.proto";
 
 option swift_prefix = "DialogCallsAPI_";
