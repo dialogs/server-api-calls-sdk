@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name     = "DialogCalls-GRPC-objc"
-  spec.module_name = "DialogCalls_GRPC-objc"
+  spec.module_name = "DialogCalls_GRPC_objc"
   spec.version  = "2.22.3"
   spec.license  = "Apache License, Version 2.0"
   spec.authors  = { "Dialog contributors" => "info@dlg.im" }
