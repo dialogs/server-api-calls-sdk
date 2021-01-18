@@ -3,6 +3,7 @@ syntax = "proto3";
 package im.dlg.sdk.calls.client.mesh.api;
 option java_package = "im.dlg.sdk.calls.client.mesh.api";
 option swift_prefix = "DialogCallsMesh_";
+option objc_class_prefix = "DialogCallsMesh_";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
