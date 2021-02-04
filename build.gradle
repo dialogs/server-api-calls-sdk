@@ -72,7 +72,6 @@ dependencies {
     protobuf files('./server.proto')
     protobuf files('./history.proto')
     protobuf files('./conference.proto')
-    protobuf files('./conferenceService.proto')
 }
 
 protobuf {
