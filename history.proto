@@ -3,6 +3,7 @@ syntax = "proto3";
 package im.dlg.sdk.calls.client.history.api;
 option java_package = "im.dlg.sdk.calls.client.history.api";
 option swift_prefix = "Dialog_";
+option objc_class_prefix = "Dialog_";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";

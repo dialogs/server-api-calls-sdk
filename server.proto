@@ -3,6 +3,7 @@ syntax = "proto3";
 package im.dlg.sdk.calls.client.p2p.api;
 option java_package = "im.dlg.sdk.calls.client.p2p.api";
 option swift_prefix = "DialogCalls_";
+option objc_class_prefix = "DialogCalls_";
 
 import "google/protobuf/wrappers.proto";
 
